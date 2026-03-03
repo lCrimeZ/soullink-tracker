@@ -25,7 +25,7 @@ export function EditEncounterModal({
   async function save(formData: FormData) {
     setSaving(true);
     const payload = {
-      encounter_id: encounter.id,
+      ncounter_id: encounter!.id,
       pokemon_name: (formData.get("pokemon_name") as string) || null,
       sprite_url: (formData.get("sprite_url") as string) || null,
       type1: (formData.get("type1") as string) || null,
