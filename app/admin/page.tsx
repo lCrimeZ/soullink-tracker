@@ -1,10 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useFormState } from "react-dom";
 import { adminLogin } from "./actions";
 
 export default function AdminPage() {
-  const [state, formAction] = useActionState(adminLogin, { ok: false as boolean, error: "" });
+  const [state, formAction] = useFormState(adminLogin, { ok: false, error: "" });
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
