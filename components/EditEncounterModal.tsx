@@ -48,52 +48,49 @@ export function EditEncounterModal({
   if (!open || !encounter || !route || !player) return null;
 
   async function save(formData: FormData) {
-    setSaving(true);
+  const enc = encounter;      // <- NEU
+  if (!enc) return;           // <- NEU
 
-    const pokemonName = ((formData.get("pokemon_name") as string) || "").trim();
+  setSaving(true);
 
-    // Manuelle Overrides (falls du sie ausfüllen willst)
-    const manualSprite = ((formData.get("sprite_url") as string) || "").trim();
-    const manualType1 = ((formData.get("type1") as string) || "").trim();
-    const manualType2 = ((formData.get("type2") as string) || "").trim();
+  const pokemonName = ((formData.get("pokemon_name") as string) || "").trim();
 
-    // PokéAPI nur nutzen, wenn Name gesetzt ist
-    const poke = pokemonName ? await fetchPokemon(pokemonName) : null;
+  const manualSprite = ((formData.get("sprite_url") as string) || "").trim();
+  const manualType1 = ((formData.get("type1") as string) || "").trim();
+  const manualType2 = ((formData.get("type2") as string) || "").trim();
 
-    const payload = {
-      encounter_id: encounter.id,
+  const poke = pokemonName ? await fetchPokemon(pokemonName) : null;
 
-      pokemon_name: pokemonName || null,
+  const payload = {
+    encounter_id: enc.id,   // <- HIER: enc statt encounter
 
-      // Wenn manuell was drin steht -> behalten. Sonst aus PokéAPI.
-      sprite_url: manualSprite || poke?.sprite || null,
-      type1: manualType1 || poke?.type1 || null,
-      type2: manualType2 || poke?.type2 || null,
+    pokemon_name: pokemonName || null,
+    sprite_url: manualSprite || poke?.sprite || null,
+    type1: manualType1 || poke?.type1 || null,
+    type2: manualType2 || poke?.type2 || null,
 
-      status: formData.get("status") as "alive" | "dead" | "lost",
-      team_slot: formData.get("team_slot")
-        ? Number(formData.get("team_slot"))
-        : null,
-      notes: (formData.get("notes") as string) || null,
-    };
+    status: formData.get("status") as "alive" | "dead" | "lost",
+    team_slot: formData.get("team_slot") ? Number(formData.get("team_slot")) : null,
+    notes: (formData.get("notes") as string) || null,
+  };
 
-    const res = await fetch("/api/encounter/update", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+  const res = await fetch("/api/encounter/update", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 
-    setSaving(false);
+  setSaving(false);
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      alert(data?.error ?? "Fehler beim Speichern");
-      return;
-    }
-
-    onSaved();
-    onClose();
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    alert(data?.error ?? "Fehler beim Speichern");
+    return;
   }
+
+  onSaved();
+  onClose();
+}
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
