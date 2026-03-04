@@ -1,8 +1,28 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Encounter, Player, Route } from "@/lib/types";
+import type { Encounter, Player, Route } from "@/lib/types";
 import { TypePill } from "./TypePill";
+import { displayGen1De } from "@/lib/pokedex-gen1";
+
+function statusIcon(status: Encounter["status"] | null | undefined) {
+  if (status === "dead") return "☠";
+  if (status === "lost") return "⛔";
+  return "✅";
+}
+
+function statusPillClass(status: Encounter["status"] | null | undefined) {
+  if (status === "dead") return "bg-red-950/40 border-red-900/60 text-red-200";
+  if (status === "lost") return "bg-zinc-900/40 border-zinc-700 text-zinc-200";
+  return "bg-emerald-950/30 border-emerald-900/40 text-emerald-200";
+}
+
+function cardClass(hasMon: boolean, status: Encounter["status"] | null | undefined) {
+  if (!hasMon) return "bg-zinc-950/30 border-zinc-800";
+  if (status === "dead") return "bg-red-950/25 border-red-900/40";
+  if (status === "lost") return "bg-zinc-950/35 border-zinc-800";
+  return "bg-emerald-950/15 border-zinc-800";
+}
 
 export function RoutesTable({
   routes,
@@ -14,82 +34,121 @@ export function RoutesTable({
   routes: Route[];
   players: Player[];
   encounters: Encounter[];
-  onEdit: (encounter: Encounter, route: Route, player: Player) => void;
-  isAdmin: boolean;
+  onEdit?: (encounter: Encounter, route: Route, player: Player) => void;
+  isAdmin?: boolean;
 }) {
   const [q, setQ] = useState("");
 
-  const byRoutePlayer = useMemo(() => {
-    const m = new Map<string, Encounter>();
-    for (const e of encounters) m.set(`${e.route_id}:${e.player_id}`, e);
-    return m;
-  }, [encounters]);
-
-  const filtered = useMemo(() => {
-    const qq = q.trim().toLowerCase();
-    if (qq.length < 2) return routes;
-    return routes.filter((r) => r.name.toLowerCase().includes(qq));
+  const filteredRoutes = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    if (query.length < 2) return routes;
+    return routes.filter((r) => (r.name ?? "").toLowerCase().includes(query));
   }, [q, routes]);
+
+  // Helper: find encounter for (route, player)
+  const getEncounter = (routeId: string, playerId: string) =>
+    encounters.find((e) => e.route_id === routeId && e.player_id === playerId) ?? null;
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="font-semibold text-lg">Routen</div>
+
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Route suchen (ab 2 Zeichen)…"
-          className="w-full sm:w-[420px] rounded-xl bg-zinc-950 border border-zinc-800 px-4 py-2 outline-none"
+          placeholder="Route suchen (ab 2 Zeichen)..."
+          className="w-full sm:w-[420px] rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-3"
         />
       </div>
 
       <div className="mt-4 overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="text-zinc-300">
-            <tr className="text-left border-b border-zinc-800">
-              <th className="py-2 pr-4">Route</th>
-              <th className="py-2 pr-4">{players[0]?.name}</th>
-              <th className="py-2 pr-4">{players[1]?.name}</th>
+        <table className="w-full min-w-[900px] text-sm">
+          <thead>
+            <tr className="text-left text-zinc-300">
+              <th className="py-3 pr-4 w-[240px]">Route</th>
+              {players.map((p) => (
+                <th key={p.id} className="py-3 pr-4">
+                  {p.name}
+                </th>
+              ))}
             </tr>
           </thead>
-          <tbody>
-            {filtered.map((r) => (
-              <tr key={r.id} className="border-b border-zinc-900">
-                <td className="py-3 pr-4 whitespace-nowrap text-zinc-100">{r.name}</td>
-                {players.map((p) => {
-                  const e = byRoutePlayer.get(`${r.id}:${p.id}`);
+
+          <tbody className="border-t border-zinc-800">
+            {filteredRoutes.map((route) => (
+              <tr key={route.id} className="border-b border-zinc-800/70">
+                <td className="py-4 pr-4 align-top text-zinc-200 font-medium">
+                  {route.name}
+                </td>
+
+                {players.map((player) => {
+                  const enc = getEncounter(route.id, player.id);
+
+                  const hasMon = Boolean(enc?.pokemon_name);
+                  const clickable = Boolean(isAdmin && onEdit && enc);
+
                   return (
-                    <td key={p.id} className="py-3 pr-4">
-                      {e ? (
-                        <button
-                          onClick={() => isAdmin && onEdit(e, r, p)}
-                          className={`w-full text-left rounded-xl border px-3 py-2 ${
-                            e.status === "dead"
-                              ? "bg-red-950/30 border-red-900/60"
-                              : e.status === "lost"
-                              ? "bg-zinc-950/40 border-zinc-800"
-                              : "bg-emerald-950/10 border-zinc-800"
-                          } ${isAdmin ? "hover:border-zinc-600" : "cursor-default"}`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-zinc-950/40 border border-zinc-800 flex items-center justify-center overflow-hidden">
-                              {e.sprite_url ? <img src={e.sprite_url} alt="" className="h-9 w-9" /> : <span className="text-xs text-zinc-400">?</span>}
-                            </div>
-                            <div className="min-w-0">
-                              <div className="font-semibold truncate">{e.pokemon_name ?? "—"}</div>
-                              <div className="mt-1 flex gap-1 flex-wrap">
-                                {e.type1 ? <TypePill t={e.type1} /> : null}
-                                {e.type2 ? <TypePill t={e.type2} /> : null}
-                                <span className="px-2 py-1 rounded-full text-xs bg-zinc-800 border border-zinc-700">
-                                  {e.status}
-                                </span>
+                    <td key={player.id} className="py-4 pr-4 align-top">
+                      <button
+                        type="button"
+                        disabled={!clickable}
+                        onClick={() => enc && onEdit?.(enc, route, player)}
+                        className={[
+                          "w-full text-left rounded-xl border p-3 transition",
+                          "hover:border-zinc-700",
+                          clickable ? "cursor-pointer hover:translate-y-[-1px]" : "cursor-default",
+                          cardClass(hasMon, enc?.status),
+                        ].join(" ")}
+                        title={clickable ? "Bearbeiten" : ""}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="h-12 w-12 rounded-lg bg-zinc-950/40 border border-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
+                            {enc?.sprite_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={enc.sprite_url}
+                                alt={enc.pokemon_name ?? ""}
+                                className="h-10 w-10"
+                              />
+                            ) : (
+                              <span className="text-xs text-zinc-500">?</span>
+                            )}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            {/* Name + Status Icon */}
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="text-base">
+                                {hasMon ? statusIcon(enc?.status) : "—"}
+                              </span>
+
+                              <div className="font-semibold truncate">
+                                {hasMon ? displayGen1De(enc?.pokemon_name) : "—"}
                               </div>
                             </div>
+
+                            {/* Types */}
+                            <div className="mt-2 flex gap-1 flex-wrap">
+                              {enc?.type1 ? <TypePill t={enc.type1} /> : null}
+                              {enc?.type2 ? <TypePill t={enc.type2} /> : null}
+                            </div>
+
+                            {/* Status pill */}
+                            <div className="mt-2">
+                              <span
+                                className={[
+                                  "inline-flex items-center gap-2 px-2 py-1 rounded-full border text-xs",
+                                  statusPillClass(enc?.status),
+                                ].join(" ")}
+                              >
+                                <span>{statusIcon(enc?.status)}</span>
+                                <span>{enc?.status ?? "alive"}</span>
+                              </span>
+                            </div>
                           </div>
-                        </button>
-                      ) : (
-                        <div className="text-zinc-500">—</div>
-                      )}
+                        </div>
+                      </button>
                     </td>
                   );
                 })}
@@ -99,7 +158,9 @@ export function RoutesTable({
         </table>
       </div>
 
-      {!isAdmin ? <div className="text-xs text-zinc-400 mt-3">Readonly. Admin kann über /admin einloggen.</div> : null}
+      {q.trim().length >= 2 && filteredRoutes.length === 0 ? (
+        <div className="mt-4 text-zinc-400 text-sm">Keine Route gefunden.</div>
+      ) : null}
     </div>
   );
 }
