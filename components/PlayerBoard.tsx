@@ -1,5 +1,6 @@
 import { Encounter, Player } from "@/lib/types";
 import { TypePill } from "./TypePill";
+import { TYPE_META, normalizeType } from "@/lib/pokemon-types";
 
 function cardBg(status: Encounter["status"]) {
   if (status === "dead") return "bg-red-950/40 border-red-900/60";
