@@ -22,10 +22,14 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "bad request" }, { status: 400 });
 
   const sb = supabaseServer();
-  const { error } = await sb
-    .from("encounters")
-    .update({ ...parsed.data, updated_at: new Date().toISOString() })
-    .eq("id", parsed.data.encounter_id);
+
+// encounter_id NICHT updaten, nur als "where"-Filter benutzen
+const { encounter_id, ...updateData } = parsed.data;
+
+const { error } = await sb
+  .from("encounters")
+  .update({ ...updateData, updated_at: new Date().toISOString() })
+  .eq("id", encounter_id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
