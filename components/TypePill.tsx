@@ -1,29 +1,23 @@
-const TYPE_DE: Record<string, string> = {
-  normal: "Normal",
-  fire: "Feuer",
-  water: "Wasser",
-  electric: "Elektro",
-  grass: "Pflanze",
-  ice: "Eis",
-  fighting: "Kampf",
-  poison: "Gift",
-  ground: "Boden",
-  flying: "Flug",
-  psychic: "Psycho",
-  bug: "Käfer",
-  rock: "Gestein",
-  ghost: "Geist",
-  dragon: "Drache",
-  dark: "Unlicht",
-  steel: "Stahl",
-  fairy: "Fee",
-};
+// components/TypePill.tsx
+import { TYPE_META, normalizeType } from "@/lib/pokemon-types";
 
 export function TypePill({ t }: { t: string }) {
-  const label = TYPE_DE[t] ?? t;
+  const key = normalizeType(t);
+  const meta = TYPE_META[key];
+
+  // Fallback, falls irgendein unbekannter Typ reinkommt
+  const label = meta?.label ?? t;
+  const cls =
+    meta?.className ?? "bg-zinc-800 border border-zinc-700 text-zinc-200";
 
   return (
-    <span className="px-2 py-1 rounded-full text-xs bg-zinc-800 border border-zinc-700">
+    <span
+      className={[
+        "px-2 py-1 rounded-full text-xs border inline-flex items-center leading-none",
+        cls,
+      ].join(" ")}
+      title={label}
+    >
       {label}
     </span>
   );
