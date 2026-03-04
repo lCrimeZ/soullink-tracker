@@ -76,84 +76,106 @@ export function RoutesTable({
           </thead>
 
           <tbody className="border-t border-zinc-800">
-            {filteredRoutes.map((route) => (
-              <tr key={route.id} className="border-b border-zinc-800/70">
-                <td className="py-4 pr-4 align-top text-zinc-200 font-medium">
-                  {route.name}
-                </td>
+            {filteredRoutes.map((route) => {
+              // ✅ Route done = beide Spieler haben pokemon_name
+              const p1 = players[0]?.id;
+              const p2 = players[1]?.id;
 
-                {players.map((player) => {
-                  const enc = getEncounter(route.id, player.id);
+              const e1 = p1 ? getEncounter(route.id, p1) : null;
+              const e2 = p2 ? getEncounter(route.id, p2) : null;
 
-                  const hasMon = Boolean(enc?.pokemon_name);
-                  const clickable = Boolean(isAdmin && onEdit && enc);
+              const routeDone = Boolean(e1?.pokemon_name) && Boolean(e2?.pokemon_name);
 
-                  return (
-                    <td key={player.id} className="py-4 pr-4 align-top">
-                      <button
-                        type="button"
-                        disabled={!clickable}
-                        onClick={() => enc && onEdit?.(enc, route, player)}
-                        className={[
-                          "w-full text-left rounded-xl border p-3 transition",
-                          "hover:border-zinc-700",
-                          clickable ? "cursor-pointer hover:translate-y-[-1px]" : "cursor-default",
-                          cardClass(hasMon, enc?.status),
-                        ].join(" ")}
-                        title={clickable ? "Bearbeiten" : ""}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="h-12 w-12 rounded-lg bg-zinc-950/40 border border-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
-                            {enc?.sprite_url ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={enc.sprite_url}
-                                alt={enc.pokemon_name ?? ""}
-                                className="h-10 w-10"
-                              />
-                            ) : (
-                              <span className="text-xs text-zinc-500">?</span>
-                            )}
-                          </div>
+              return (
+                <tr key={route.id} className="border-b border-zinc-800/70">
+                  {/* Route name + DONE badge */}
+                  <td className="py-4 pr-4 align-top text-zinc-200 font-medium">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate">{route.name}</span>
 
-                          <div className="min-w-0 flex-1">
-                            {/* Name + Status Icon */}
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="text-base">
-                                {hasMon ? statusIcon(enc?.status) : "—"}
-                              </span>
+                      {routeDone ? (
+                        <span className="px-2 py-0.5 rounded-full text-xs border border-emerald-700/60 bg-emerald-900/20 text-emerald-200">
+                          Erledigt ✓
+                        </span>
+                      ) : null}
+                    </div>
+                  </td>
 
-                              <div className="font-semibold truncate">
-                                {hasMon ? displayGen1De(enc?.pokemon_name) : "—"}
+                  {players.map((player) => {
+                    const enc = getEncounter(route.id, player.id);
+
+                    const hasMon = Boolean(enc?.pokemon_name);
+                    const clickable = Boolean(isAdmin && onEdit && enc);
+
+                    return (
+                      <td key={player.id} className="py-4 pr-4 align-top">
+                        <button
+                          type="button"
+                          disabled={!clickable}
+                          onClick={() => enc && onEdit?.(enc, route, player)}
+                          className={[
+                            "w-full text-left rounded-xl border p-3 transition",
+                            "hover:border-zinc-700",
+                            clickable
+                              ? "cursor-pointer hover:translate-y-[-1px]"
+                              : "cursor-default",
+                            cardClass(hasMon, enc?.status),
+                          ].join(" ")}
+                          title={clickable ? "Bearbeiten" : ""}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="h-12 w-12 rounded-lg bg-zinc-950/40 border border-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
+                              {enc?.sprite_url ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={enc.sprite_url}
+                                  alt={enc.pokemon_name ?? ""}
+                                  className="h-10 w-10"
+                                />
+                              ) : (
+                                <span className="text-xs text-zinc-500">?</span>
+                              )}
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              {/* Name + Status icon */}
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="text-base">
+                                  {hasMon ? statusIcon(enc?.status) : "—"}
+                                </span>
+
+                                <div className="font-semibold truncate">
+                                  {hasMon ? displayGen1De(enc?.pokemon_name) : "—"}
+                                </div>
+                              </div>
+
+                              {/* Types */}
+                              <div className="mt-2 flex gap-1 flex-wrap">
+                                {enc?.type1 ? <TypePill t={enc.type1} /> : null}
+                                {enc?.type2 ? <TypePill t={enc.type2} /> : null}
+                              </div>
+
+                              {/* Status pill */}
+                              <div className="mt-2">
+                                <span
+                                  className={[
+                                    "inline-flex items-center gap-2 px-2 py-1 rounded-full border text-xs",
+                                    statusPillClass(enc?.status),
+                                  ].join(" ")}
+                                >
+                                  <span>{statusIcon(enc?.status)}</span>
+                                  <span>{enc?.status ?? "alive"}</span>
+                                </span>
                               </div>
                             </div>
-
-                            {/* Types */}
-                            <div className="mt-2 flex gap-1 flex-wrap">
-                              {enc?.type1 ? <TypePill t={enc.type1} /> : null}
-                              {enc?.type2 ? <TypePill t={enc.type2} /> : null}
-                            </div>
-
-                            {/* Status pill */}
-                            <div className="mt-2">
-                              <span
-                                className={[
-                                  "inline-flex items-center gap-2 px-2 py-1 rounded-full border text-xs",
-                                  statusPillClass(enc?.status),
-                                ].join(" ")}
-                              >
-                                <span>{statusIcon(enc?.status)}</span>
-                                <span>{enc?.status ?? "alive"}</span>
-                              </span>
-                            </div>
                           </div>
-                        </div>
-                      </button>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+                        </button>
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
