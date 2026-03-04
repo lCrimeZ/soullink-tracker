@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Encounter, Player, Route } from "@/lib/types";
+import { fetchPokemon } from "@/lib/pokemon";
 
 async function fetchPokemon(name: string) {
   const cleaned = name.trim().toLowerCase();
@@ -53,7 +54,8 @@ export function EditEncounterModal({
 
   setSaving(true);
 
-  const pokemonName = ((formData.get("pokemon_name") as string) || "").trim();
+  const pokemonName =
+  ((formData.get("pokemon_name") as string) || "").trim().toLowerCase();
 
   const manualSprite = ((formData.get("sprite_url") as string) || "").trim();
   const manualType1 = ((formData.get("type1") as string) || "").trim();
