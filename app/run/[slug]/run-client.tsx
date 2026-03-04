@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { RoutesTable } from "@/components/RoutesTable";
-import { EditEncounterModal } from "@/components/EditEncounterModal";
+import EditEncounterModal from "@/components/EditEncounterModal";
 import { Encounter, Player, Route, Cap, Run } from "@/lib/types";
 
 export default function RunClient({
