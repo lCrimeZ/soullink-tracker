@@ -4,31 +4,6 @@ import { useState } from "react";
 import { Encounter, Player, Route } from "@/lib/types";
 import { fetchPokemon } from "@/lib/pokemon";
 
-async function fetchPokemon(name: string) {
-  const cleaned = name.trim().toLowerCase();
-  if (!cleaned) return null;
-
-  try {
-    const res = await fetch("https://pokeapi.co/api/v2/pokemon/" + cleaned);
-    if (!res.ok) return null;
-
-    const data = await res.json();
-
-    // bestes Sprite nehmen, wenn verfügbar
-    const sprite =
-      data?.sprites?.other?.["official-artwork"]?.front_default ??
-      data?.sprites?.front_default ??
-      null;
-
-    const type1 = data?.types?.[0]?.type?.name ?? null;
-    const type2 = data?.types?.[1]?.type?.name ?? null;
-
-    return { sprite, type1, type2 };
-  } catch {
-    return null;
-  }
-}
-
 export function EditEncounterModal({
   open,
   onClose,
