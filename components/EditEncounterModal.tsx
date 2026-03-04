@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Encounter, Player, Route } from "@/lib/types";
 import { fetchPokemon } from "@/lib/pokemon";
-import { resolveGen1ToEn, searchGen1 } from "@/lib/pokedex-gen1";
+import { displayGen1De, resolveGen1ToEn, searchGen1 } from "@/lib/pokedex-gen1";
 
 export function EditEncounterModal({
   open,
@@ -20,63 +20,69 @@ export function EditEncounterModal({
   player: Player | null;
   onSaved: () => void;
 }) {
+  // ✅ Hooks IMMER ganz oben
   const [saving, setSaving] = useState(false);
 
-  // Für Autocomplete (nur UI)
-  const [query, setQuery] = useState<string>("");
-  const [pickedEn, setPickedEn] = useState<string>("");
+  // UI: Suchfeld (zeigt Deutsch), Speicherung: EN
+  const [query, setQuery] = useState("");
+  const [pickedEn, setPickedEn] = useState("");
 
-  if (!open || !encounter || !route || !player) return null;
+  // Beim Öffnen initialisieren (bestehenden Wert anzeigen)
+  useEffect(() => {
+    if (!open || !encounter) return;
 
-  // Vorschläge anhand deiner Eingabe
+    const en = encounter.pokemon_name ?? "";
+    setPickedEn(""); // reset, damit freie Eingabe wieder greift
+    setQuery(en ? displayGen1De(en) : "");
+  }, [open, encounter?.id]);
+
+  // Vorschläge (läuft immer, gibt aber leer zurück wenn query leer)
   const suggestions = useMemo(() => {
     if (!query.trim()) return [];
     return searchGen1(query, 10);
   }, [query]);
 
-  async function save(formData: FormData) {
-    if (!encounter) return;
-    if (saving) return;
+  // ✅ Erst NACH Hooks returnen
+  if (!open || !encounter || !route || !player) return null;
 
+  async function save(formData: FormData) {
+    if (saving) return;
     setSaving(true);
 
-    // Input kommt aus dem Feld pokemon_name (wir füttern das gleich mit query)
-    const rawInput = (formData.get("pokemon_name") as string) || "";
-
-    // 1) wenn User aus Dropdown gewählt hat, nehmen wir EN
-    // 2) sonst versuchen wir, freie Eingabe (DE/EN) auf EN zu mappen
-    // 3) falls gar nichts matcht -> null (oder speichere rawInput wenn du willst)
-    const resolvedEn =
-      (pickedEn && resolveGen1ToEn(pickedEn)) ||
-      resolveGen1ToEn(rawInput) ||
-      null;
-
-    // Für PokeAPI: nur EN verwenden
-    const pokemon = resolvedEn ? await fetchPokemon(resolvedEn) : null;
-
-    const manualSprite = (formData.get("sprite_url") as string) || "";
-    const manualType1 = (formData.get("type1") as string) || "";
-    const manualType2 = (formData.get("type2") as string) || "";
-
-    const payload = {
-      encounter_id: encounter.id,
-
-      // ✅ in DB speichern wir EN
-      pokemon_name: resolvedEn,
-
-      // Sprite/Types: wenn API was findet -> auto, sonst manuell
-      sprite_url: pokemon?.sprite || manualSprite || null,
-      type1: pokemon?.type1 || manualType1 || null,
-      type2: pokemon?.type2 || manualType2 || null,
-
-      status: formData.get("status") as "alive" | "dead" | "lost",
-      team_slot: formData.get("team_slot")
-        ? Number(formData.get("team_slot"))
-        : null,
-      notes: (formData.get("notes") as string) || null,
-    };
-
     try {
+      // Input aus Feld (Deutsch oder Englisch möglich)
+      const rawInput = ((formData.get("pokemon_name") as string) || "").trim();
+
+      // 1) wenn Dropdown gewählt → pickedEn (EN)
+      // 2) sonst freie Eingabe mappen (DE/EN → EN)
+      const resolvedEn =
+        resolveGen1ToEn(pickedEn) || resolveGen1ToEn(rawInput) || null;
+
+      // Für PokeAPI: nur EN verwenden
+      const pokemon = resolvedEn ? await fetchPokemon(resolvedEn) : null;
+
+      const manualSprite = ((formData.get("sprite_url") as string) || "").trim();
+      const manualType1 = ((formData.get("type1") as string) || "").trim();
+      const manualType2 = ((formData.get("type2") as string) || "").trim();
+
+      const payload = {
+        encounter_id: encounter.id,
+
+        // ✅ in DB immer EN speichern
+        pokemon_name: resolvedEn,
+
+        // Auto von API, sonst manuell
+        sprite_url: pokemon?.sprite || manualSprite || null,
+        type1: pokemon?.type1 || manualType1 || null,
+        type2: pokemon?.type2 || manualType2 || null,
+
+        status: formData.get("status") as "alive" | "dead" | "lost",
+        team_slot: formData.get("team_slot")
+          ? Number(formData.get("team_slot"))
+          : null,
+        notes: (formData.get("notes") as string) || null,
+      };
+
       const res = await fetch("/api/encounter/update", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -116,7 +122,7 @@ export function EditEncounterModal({
         </div>
 
         <form action={save} className="mt-4 grid gap-3">
-          {/* ✅ Pokemon Name (DE/EN) + Vorschläge */}
+          {/* ✅ Pokémon Name (DE/EN) + Vorschläge */}
           <div className="relative">
             <input
               name="pokemon_name"
@@ -137,8 +143,8 @@ export function EditEncounterModal({
                     key={p.en}
                     type="button"
                     onClick={() => {
-                      setPickedEn(p.en);
-                      setQuery(p.de); // im Feld steht deutsch
+                      setPickedEn(p.en); // ✅ EN speichern
+                      setQuery(p.de); // ✅ Feld zeigt DE
                     }}
                     className="w-full text-left px-4 py-2 hover:bg-zinc-900 flex items-center justify-between"
                   >
