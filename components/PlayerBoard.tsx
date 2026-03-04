@@ -3,6 +3,7 @@
 import { Encounter, Player } from "@/lib/types";
 import { TypePill } from "./TypePill";
 import { TYPE_META, normalizeType } from "@/lib/pokemon-types";
+import { displayGen1De } from "@/lib/pokedex-gen1";
 
 function cardBg(status: Encounter["status"]) {
   if (status === "dead") return "bg-red-950/40 border-red-900/60";
@@ -79,7 +80,7 @@ export function PlayerBoard({
 
                   <div className="min-w-0">
                     <div className="font-semibold truncate">
-                      {e.pokemon_name ? e.pokemon_name : "—"}
+                      {displayGen1De(e.pokemon_name)}
                     </div>
 
                     <div className="text-xs text-zinc-300 truncate">{e.routeName}</div>
