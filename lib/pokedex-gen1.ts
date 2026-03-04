@@ -200,3 +200,12 @@ export function searchGen1(query: string, limit = 8): PokedexEntry[] {
     .filter((p) => normalize(p.en).includes(q) || normalize(p.de).includes(q))
     .slice(0, limit);
 }
+
+export const GEN1_EN_TO_DE: Record<string, string> = Object.fromEntries(
+  POKEDEX_GEN1.map((p) => [p.en, p.de])
+);
+
+export function displayGen1De(en: string | null | undefined): string {
+  if (!en) return "—";
+  return GEN1_EN_TO_DE[en] ?? en; // fallback: zeigt EN wenn nicht gefunden
+}
