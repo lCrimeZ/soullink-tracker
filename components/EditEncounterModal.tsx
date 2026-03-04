@@ -37,7 +37,7 @@ export function EditEncounterModal({
   async function save(formData: FormData) {
   setSaving(true);
 
-  const pokemonName = formData.get("pokemon_name") as string;
+  const pokemonName = (formData.get("pokemon_name") as string) || "";
 
   const poke = pokemonName ? await fetchPokemon(pokemonName) : null;
 
@@ -51,6 +51,23 @@ export function EditEncounterModal({
     team_slot: formData.get("team_slot") ? Number(formData.get("team_slot")) : null,
     notes: (formData.get("notes") as string) || null,
   };
+
+  const res = await fetch("/api/encounter/update", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  setSaving(false);
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    alert(data?.error ?? "Fehler beim Speichern");
+    return;
+  }
+
+  onSaved?.();
+  onClose?.();
 }
 
     const res = await fetch("/api/encounter/update", {
