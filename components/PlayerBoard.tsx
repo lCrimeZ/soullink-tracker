@@ -1,3 +1,5 @@
+"use client";
+
 import { Encounter, Player } from "@/lib/types";
 import { TypePill } from "./TypePill";
 import { TYPE_META, normalizeType } from "@/lib/pokemon-types";
