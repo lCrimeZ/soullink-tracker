@@ -36,7 +36,7 @@ export default function RootLayout({
           {/* leichter Filmgrain Look (super subtil) */}
           <div className="absolute inset-0 opacity-[0.07] mix-blend-overlay pointer-events-none [background-image:url('data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%22120%22%20height=%22120%22%3E%3Cfilter%20id=%22n%22%3E%3CfeTurbulence%20type=%22fractalNoise%22%20baseFrequency=%220.8%22%20numOctaves=%224%22%20stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect%20width=%22120%22%20height=%22120%22%20filter=%22url(%23n)%22%20opacity=%220.6%22/%3E%3C/svg%3E')]" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30 pointer-events-none" />
+       
         {/* Content Wrapper (nice spacing) */}
         <div className="relative min-h-screen">
           {/* optional: top glow line */}
