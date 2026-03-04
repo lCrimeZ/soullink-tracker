@@ -23,7 +23,8 @@ export function EditEncounterModal({
   if (!open || !encounter || !route || !player) return null;
 
   async function save(formData: FormData) {
-    setSaving(true);
+  if (!encounter) return;   // <-- NEU
+  setSaving(true);
     const payload = {
       encounter_id: encounter.id,
       pokemon_name: (formData.get("pokemon_name") as string) || null,
