@@ -46,61 +46,54 @@ export function EditEncounterModal({
   if (!open || !encounter || !route || !player) return null;
 
   async function save(formData: FormData) {
-    if (saving) return;
-    setSaving(true);
+  if (!encounter) return;     // ✅ NEU: TS Fix
+  if (saving) return;
 
-    try {
-      // Input aus Feld (Deutsch oder Englisch möglich)
-      const rawInput = ((formData.get("pokemon_name") as string) || "").trim();
+  setSaving(true);
 
-      // 1) wenn Dropdown gewählt → pickedEn (EN)
-      // 2) sonst freie Eingabe mappen (DE/EN → EN)
-      const resolvedEn =
-        resolveGen1ToEn(pickedEn) || resolveGen1ToEn(rawInput) || null;
+  try {
+    const rawInput = ((formData.get("pokemon_name") as string) || "").trim();
 
-      // Für PokeAPI: nur EN verwenden
-      const pokemon = resolvedEn ? await fetchPokemon(resolvedEn) : null;
+    const resolvedEn =
+      resolveGen1ToEn(pickedEn) || resolveGen1ToEn(rawInput) || null;
 
-      const manualSprite = ((formData.get("sprite_url") as string) || "").trim();
-      const manualType1 = ((formData.get("type1") as string) || "").trim();
-      const manualType2 = ((formData.get("type2") as string) || "").trim();
+    const pokemon = resolvedEn ? await fetchPokemon(resolvedEn) : null;
 
-      const payload = {
-        encounter_id: encounter.id,
+    const manualSprite = ((formData.get("sprite_url") as string) || "").trim();
+    const manualType1 = ((formData.get("type1") as string) || "").trim();
+    const manualType2 = ((formData.get("type2") as string) || "").trim();
 
-        // ✅ in DB immer EN speichern
-        pokemon_name: resolvedEn,
+    const payload = {
+      encounter_id: encounter.id,   // ✅ jetzt ok, weil oben abgesichert
+      pokemon_name: resolvedEn,
+      sprite_url: pokemon?.sprite || manualSprite || null,
+      type1: pokemon?.type1 || manualType1 || null,
+      type2: pokemon?.type2 || manualType2 || null,
+      status: formData.get("status") as "alive" | "dead" | "lost",
+      team_slot: formData.get("team_slot")
+        ? Number(formData.get("team_slot"))
+        : null,
+      notes: (formData.get("notes") as string) || null,
+    };
 
-        // Auto von API, sonst manuell
-        sprite_url: pokemon?.sprite || manualSprite || null,
-        type1: pokemon?.type1 || manualType1 || null,
-        type2: pokemon?.type2 || manualType2 || null,
+    const res = await fetch("/api/encounter/update", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-        status: formData.get("status") as "alive" | "dead" | "lost",
-        team_slot: formData.get("team_slot")
-          ? Number(formData.get("team_slot"))
-          : null,
-        notes: (formData.get("notes") as string) || null,
-      };
-
-      const res = await fetch("/api/encounter/update", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        alert(data?.error ?? "Fehler beim Speichern");
-        return;
-      }
-
-      onSaved();
-      onClose();
-    } finally {
-      setSaving(false);
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      alert(data?.error ?? "Fehler beim Speichern");
+      return;
     }
+
+    onSaved();
+    onClose();
+  } finally {
+    setSaving(false);
   }
+}
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
