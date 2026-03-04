@@ -35,7 +35,7 @@ export default async function RunPage({ params }: { params: { slug: string } }) 
   const currentCap = data.caps?.[0];
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-zinc-950 via-slate-950 to-indigo-950 text-zinc-100">
+    <div className="min-h-screen relative overflow-hidden text-zinc-100">
 
       {/* Pokémon Style Glow */}
       <div className="absolute top-[-200px] left-[-200px] w-[500px] h-[500px] bg-red-500/10 blur-3xl rounded-full pointer-events-none" />
