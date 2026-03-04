@@ -18,6 +18,13 @@ export function LevelCaps({
     return [...items].sort((a: any, b: any) => (a.sort ?? 0) - (b.sort ?? 0));
   }, [items]);
 
+  const done = useMemo(
+    () => sorted.filter((c: any) => Boolean((c as any).cleared)).length,
+    [sorted]
+  );
+  const total = sorted.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+
   async function toggleCap(cap: Cap) {
     if (!isAdmin) return;
 
@@ -26,7 +33,7 @@ export function LevelCaps({
 
     // Optimistic UI
     setItems((prev) =>
-      prev.map((c) => (((c as any).id === (cap as any).id ? { ...(c as any), cleared: next } : c) as any))
+      prev.map((c: any) => ((c as any).id === (cap as any).id ? { ...(c as any), cleared: next } : c))
     );
 
     try {
@@ -43,7 +50,9 @@ export function LevelCaps({
     } catch (e: any) {
       // rollback
       setItems((prev) =>
-        prev.map((c) => (((c as any).id === (cap as any).id ? { ...(c as any), cleared: !next } : c) as any))
+        prev.map((c: any) =>
+          (c as any).id === (cap as any).id ? { ...(c as any), cleared: !next } : c
+        )
       );
       alert(e?.message ?? "Fehler beim Speichern");
     } finally {
@@ -53,15 +62,34 @@ export function LevelCaps({
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="font-semibold text-lg">Level Limits</div>
-        {isAdmin ? (
-          <span className="text-xs text-zinc-400">Admin: Abhaken aktiv</span>
-        ) : (
-          <span className="text-xs text-zinc-400">Read-only</span>
-        )}
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="font-semibold text-lg">Level-Limits</div>
+
+          <div className="mt-2 flex items-center gap-3 flex-wrap">
+            <div className="text-xs text-zinc-300">
+              Fortschritt:{" "}
+              <span className="font-semibold text-zinc-100">{done}</span> / {total} erledigt
+              <span className="ml-2 text-zinc-400">({pct}%)</span>
+            </div>
+
+            <div className="h-2 w-56 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden">
+              <div className="h-full bg-emerald-500/90" style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {isAdmin ? (
+            <span className="text-xs text-zinc-400">Admin: Abhaken aktiv</span>
+          ) : (
+            <span className="text-xs text-zinc-400">Read-only</span>
+          )}
+        </div>
       </div>
 
+      {/* Grid */}
       <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {sorted.map((c: any) => {
           const cleared = Boolean(c.cleared);
@@ -76,8 +104,8 @@ export function LevelCaps({
               ].join(" ")}
             >
               <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  {/* ✅ Leader Sprite wieder drin */}
+                <div className="flex gap-3 min-w-0">
+                  {/* Leader Sprite */}
                   <div className="h-10 w-10 rounded-lg bg-zinc-900 border border-zinc-800 overflow-hidden flex items-center justify-center shrink-0">
                     {c.leader_sprite ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -88,21 +116,23 @@ export function LevelCaps({
                         loading="lazy"
                       />
                     ) : (
-                      <span className="text-zinc-500 text-xs">—</span>
+                      <span className="text-xs text-zinc-500">—</span>
                     )}
                   </div>
 
+                  {/* Label + Caps */}
                   <div className="min-w-0">
                     <div className="text-sm text-zinc-300 leading-snug break-words">
                       {c.label}
                     </div>
+
                     <div className="mt-2 text-2xl font-semibold">
                       {c.cap_p1} / {c.cap_p2}
                     </div>
                   </div>
                 </div>
 
-                {/* Toggle */}
+                {/* Toggle Button */}
                 <button
                   type="button"
                   disabled={!isAdmin || busy}
@@ -123,7 +153,7 @@ export function LevelCaps({
                       : "Als geschafft markieren"
                   }
                 >
-                  {busy ? "…" : cleared ? "✓ Abgehakt" : "Abhaken"}
+                  {busy ? "..." : cleared ? "Abgehakt" : "Abhaken"}
                 </button>
               </div>
 
