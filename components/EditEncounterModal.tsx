@@ -3,6 +3,18 @@
 import { useState } from "react";
 import { Encounter, Player, Route } from "@/lib/types";
 
+async function fetchPokemon(name: string) {
+  const res = await fetch("https://pokeapi.co/api/v2/pokemon/" + name.toLowerCase());
+  if (!res.ok) return null;
+  const data = await res.json();
+
+  return {
+    sprite: data.sprites.front_default,
+    type1: data.types[0]?.type.name,
+    type2: data.types[1]?.type.name || null
+  };
+}
+
 export function EditEncounterModal({
   open,
   onClose,
@@ -23,17 +35,23 @@ export function EditEncounterModal({
   if (!open || !encounter || !route || !player) return null;
 
   async function save(formData: FormData) {
-    setSaving(true);
-    const payload = {
-      ncounter_id: encounter!.id,
-      pokemon_name: (formData.get("pokemon_name") as string) || null,
-      sprite_url: (formData.get("sprite_url") as string) || null,
-      type1: (formData.get("type1") as string) || null,
-      type2: (formData.get("type2") as string) || null,
-      status: formData.get("status") as "alive" | "dead" | "lost",
-      team_slot: formData.get("team_slot") ? Number(formData.get("team_slot")) : null,
-      notes: (formData.get("notes") as string) || null,
-    };
+  setSaving(true);
+
+  const pokemonName = formData.get("pokemon_name") as string;
+
+  const poke = pokemonName ? await fetchPokemon(pokemonName) : null;
+
+  const payload = {
+    encounter_id: encounter!.id,
+    pokemon_name: pokemonName || null,
+    sprite_url: poke?.sprite || null,
+    type1: poke?.type1 || null,
+    type2: poke?.type2 || null,
+    status: formData.get("status") as "alive" | "dead" | "lost",
+    team_slot: formData.get("team_slot") ? Number(formData.get("team_slot")) : null,
+    notes: (formData.get("notes") as string) || null,
+  };
+}
 
     const res = await fetch("/api/encounter/update", {
       method: "POST",
