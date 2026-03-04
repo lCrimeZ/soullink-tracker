@@ -4,6 +4,9 @@ import { PlayerBoard } from "@/components/PlayerBoard";
 import { LevelCaps } from "@/components/LevelCaps";
 import RunClient from "./run-client";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function RunPage({ params }: { params: { slug: string } }) {
   const data = await loadRunBySlug(params.slug);
   const admin = isAdmin();
