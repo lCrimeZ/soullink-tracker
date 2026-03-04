@@ -93,7 +93,9 @@ export function LevelCaps({
                   </div>
 
                   <div className="min-w-0">
-                    <div className="text-sm text-zinc-300 truncate">{c.label}</div>
+                    <div className="text-sm text-zinc-300 leading-snug break-words">
+                      {c.label}
+                    </div>
                     <div className="mt-2 text-2xl font-semibold">
                       {c.cap_p1} / {c.cap_p2}
                     </div>
