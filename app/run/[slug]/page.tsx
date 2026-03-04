@@ -49,7 +49,7 @@ export default async function RunPage({ params }: { params: { slug: string } }) 
           <PlayerBoard player={p2} team={team2} />
         </div>
 
-        <LevelCaps caps={data.caps} />
+        <LevelCaps caps={data.caps} isAdmin={admin} />
 
         <RunClient initial={data} isAdmin={admin} />
       </div>
