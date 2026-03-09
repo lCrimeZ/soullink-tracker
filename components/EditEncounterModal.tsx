@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Encounter, Player, Route } from "@/lib/types";
 import { fetchPokemon } from "@/lib/pokemon";
-import { displayGen1De, resolveGen1ToEn, searchGen1 } from "@/lib/pokedex-gen1";
+import {
+  displayPokemonDe,
+  resolvePokemonToEn,
+  searchPokemon,
+} from "@/lib/pokedex";
 
 export function EditEncounterModal({
   open,
@@ -20,80 +24,78 @@ export function EditEncounterModal({
   player: Player | null;
   onSaved: () => void;
 }) {
-  // ✅ Hooks IMMER ganz oben
   const [saving, setSaving] = useState(false);
 
-  // UI: Suchfeld (zeigt Deutsch), Speicherung: EN
+  // Suchfeld zeigt DE an, gespeichert wird EN
   const [query, setQuery] = useState("");
   const [pickedEn, setPickedEn] = useState("");
 
-  // Beim Öffnen initialisieren (bestehenden Wert anzeigen)
   useEffect(() => {
     if (!open || !encounter) return;
 
     const en = encounter.pokemon_name ?? "";
-    setPickedEn(""); // reset, damit freie Eingabe wieder greift
-    setQuery(en ? displayGen1De(en) : "");
+    setPickedEn("");
+    setQuery(en ? displayPokemonDe(en) : "");
   }, [open, encounter?.id]);
 
-  // Vorschläge (läuft immer, gibt aber leer zurück wenn query leer)
   const suggestions = useMemo(() => {
     if (!query.trim()) return [];
-    return searchGen1(query, 10);
+    return searchPokemon(query, 10);
   }, [query]);
 
-  // ✅ Erst NACH Hooks returnen
   if (!open || !encounter || !route || !player) return null;
 
   async function save(formData: FormData) {
-  if (!encounter) return;     // ✅ NEU: TS Fix
-  if (saving) return;
+    if (!encounter) return;
+    if (saving) return;
 
-  setSaving(true);
+    setSaving(true);
 
-  try {
-    const rawInput = ((formData.get("pokemon_name") as string) || "").trim();
+    try {
+      const rawInput = ((formData.get("pokemon_name") as string) || "").trim();
 
-    const resolvedEn =
-      resolveGen1ToEn(pickedEn) || resolveGen1ToEn(rawInput) || null;
+      const resolvedEn =
+        resolvePokemonToEn(pickedEn) ||
+        resolvePokemonToEn(rawInput) ||
+        null;
 
-    const pokemon = resolvedEn ? await fetchPokemon(resolvedEn) : null;
+      const pokemon = resolvedEn ? await fetchPokemon(resolvedEn) : null;
 
-    const manualSprite = ((formData.get("sprite_url") as string) || "").trim();
-    const manualType1 = ((formData.get("type1") as string) || "").trim();
-    const manualType2 = ((formData.get("type2") as string) || "").trim();
+      const manualSprite = ((formData.get("sprite_url") as string) || "").trim();
+      const manualType1 = ((formData.get("type1") as string) || "").trim();
+      const manualType2 = ((formData.get("type2") as string) || "").trim();
 
-    const payload = {
-      encounter_id: encounter.id,   // ✅ jetzt ok, weil oben abgesichert
-      pokemon_name: resolvedEn,
-      sprite_url: pokemon?.sprite || manualSprite || null,
-      type1: pokemon?.type1 || manualType1 || null,
-      type2: pokemon?.type2 || manualType2 || null,
-      status: formData.get("status") as "alive" | "dead" | "lost",
-      team_slot: formData.get("team_slot")
-        ? Number(formData.get("team_slot"))
-        : null,
-      notes: (formData.get("notes") as string) || null,
-    };
+      const payload = {
+        encounter_id: encounter.id,
+        pokemon_name: resolvedEn,
+        sprite_url: pokemon?.sprite || manualSprite || null,
+        type1: pokemon?.type1 || manualType1 || null,
+        type2: pokemon?.type2 || manualType2 || null,
+        status: formData.get("status") as "alive" | "dead" | "lost",
+        team_slot: formData.get("team_slot")
+          ? Number(formData.get("team_slot"))
+          : null,
+        notes: (formData.get("notes") as string) || null,
+      };
 
-    const res = await fetch("/api/encounter/update", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+      const res = await fetch("/api/encounter/update", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      alert(data?.error ?? "Fehler beim Speichern");
-      return;
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        alert(data?.error ?? "Fehler beim Speichern");
+        return;
+      }
+
+      onSaved();
+      onClose();
+    } finally {
+      setSaving(false);
     }
-
-    onSaved();
-    onClose();
-  } finally {
-    setSaving(false);
   }
-}
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
@@ -103,7 +105,9 @@ export function EditEncounterModal({
             <div className="text-sm text-zinc-300">
               {route.name} · {player.name}
             </div>
-            <div className="text-xl font-semibold mt-1">Encounter bearbeiten</div>
+            <div className="text-xl font-semibold mt-1">
+              Encounter bearbeiten
+            </div>
           </div>
 
           <button
@@ -115,7 +119,7 @@ export function EditEncounterModal({
         </div>
 
         <form action={save} className="mt-4 grid gap-3">
-          {/* ✅ Pokémon Name (DE/EN) + Vorschläge */}
+          {/* Pokémon Suche */}
           <div className="relative">
             <input
               name="pokemon_name"
@@ -124,7 +128,7 @@ export function EditEncounterModal({
                 setQuery(e.target.value);
                 setPickedEn("");
               }}
-              placeholder="Pokémon (z.B. Schiggy / Squirtle)"
+              placeholder="Pokémon (z.B. Schiggy / Endivie / Squirtle)"
               className="rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-3 w-full"
               autoComplete="off"
             />
@@ -136,8 +140,8 @@ export function EditEncounterModal({
                     key={p.en}
                     type="button"
                     onClick={() => {
-                      setPickedEn(p.en); // ✅ EN speichern
-                      setQuery(p.de); // ✅ Feld zeigt DE
+                      setPickedEn(p.en);
+                      setQuery(p.de);
                     }}
                     className="w-full text-left px-4 py-2 hover:bg-zinc-900 flex items-center justify-between"
                   >
@@ -151,7 +155,7 @@ export function EditEncounterModal({
             <div className="mt-2 text-xs text-zinc-400">
               Wird gespeichert als:{" "}
               <span className="text-zinc-200 font-semibold">
-                {pickedEn || resolveGen1ToEn(query) || "—"}
+                {pickedEn || resolvePokemonToEn(query) || "—"}
               </span>
             </div>
           </div>
