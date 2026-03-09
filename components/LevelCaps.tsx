@@ -180,7 +180,7 @@ export function LevelCaps({
                         "h-6 w-6 object-contain",
                         cleared
                           ? "opacity-100 drop-shadow-[0_0_8px_rgba(34,197,94,0.35)]"
-                          : "opacity-30 grayscale",
+                          : "opacity-80",
                       ].join(" ")}
                       loading="lazy"
                     />
