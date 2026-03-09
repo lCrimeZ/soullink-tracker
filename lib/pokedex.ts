@@ -9,6 +9,10 @@ export type PokedexEntry = {
 export const POKEDEX: PokedexEntry[] = [
   ...POKEDEX_GEN1.map((p) => ({ en: p.en, de: p.de })),
   ...POKEDEX_GEN2.map((p) => ({ en: p.en, de: p.de })),
+
+  // Temporär / Custom
+  { en: "riolu", de: "Riolu" },
+  { en: "lucario", de: "Lucario" },
 ];
 
 function normalize(s: string) {
