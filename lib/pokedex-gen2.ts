@@ -1,29 +1,118 @@
-export type Run = { id: string; slug: string; title: string; game: string; gen: number };
+export type PokedexEntry = {
+  id: number
+  en: string
+  de: string
+}
 
-export type Player = {
-  id: string;
-  run_id: string;
-  idx: 1 | 2;
-  name: string;
-  avatar_url: string | null;
-  deaths: number;
-  wipes: number;
-};
+export const POKEDEX_GEN2: PokedexEntry[] = [
+{ id:152, en:"chikorita", de:"Endivie" },
+{ id:153, en:"bayleef", de:"Lorblatt" },
+{ id:154, en:"meganium", de:"Meganie" },
+{ id:155, en:"cyndaquil", de:"Feurigel" },
+{ id:156, en:"quilava", de:"Igelavar" },
+{ id:157, en:"typhlosion", de:"Tornupto" },
+{ id:158, en:"totodile", de:"Karnimani" },
+{ id:159, en:"croconaw", de:"Tyracroc" },
+{ id:160, en:"feraligatr", de:"Impergator" },
 
-export type Cap = { id: string; run_id: string; label: string; cap_p1: number; cap_p2: number; sort: number };
+{ id:161, en:"sentret", de:"Wiesor" },
+{ id:162, en:"furret", de:"Wiesenior" },
+{ id:163, en:"hoothoot", de:"Hoothoot" },
+{ id:164, en:"noctowl", de:"Noctuh" },
+{ id:165, en:"ledyba", de:"Ledyba" },
+{ id:166, en:"ledian", de:"Ledian" },
+{ id:167, en:"spinarak", de:"Webarak" },
+{ id:168, en:"ariados", de:"Ariados" },
+{ id:169, en:"crobat", de:"Iksbat" },
 
-export type Route = { id: string; run_id: string; name: string; sort: number };
+{ id:170, en:"chinchou", de:"Lampi" },
+{ id:171, en:"lanturn", de:"Lanturn" },
+{ id:172, en:"pichu", de:"Pichu" },
+{ id:173, en:"cleffa", de:"Pii" },
+{ id:174, en:"igglybuff", de:"Fluffeluff" },
+{ id:175, en:"togepi", de:"Togepi" },
+{ id:176, en:"togetic", de:"Togetic" },
+{ id:177, en:"natu", de:"Natu" },
+{ id:178, en:"xatu", de:"Xatu" },
 
-export type Encounter = {
-  id: string;
-  run_id: string;
-  route_id: string;
-  player_id: string;
-  pokemon_name: string | null;
-  sprite_url: string | null;
-  type1: string | null;
-  type2: string | null;
-  status: "alive" | "dead" | "lost";
-  team_slot: number | null;
-  notes: string | null;
-};
+{ id:179, en:"mareep", de:"Voltilamm" },
+{ id:180, en:"flaaffy", de:"Waaty" },
+{ id:181, en:"ampharos", de:"Ampharos" },
+{ id:182, en:"bellossom", de:"Blubella" },
+{ id:183, en:"marill", de:"Marill" },
+{ id:184, en:"azumarill", de:"Azumarill" },
+{ id:185, en:"sudowoodo", de:"Mogelbaum" },
+{ id:186, en:"politoed", de:"Quaxo" },
+{ id:187, en:"hoppip", de:"Hoppspross" },
+
+{ id:188, en:"skiploom", de:"Hubelupf" },
+{ id:189, en:"jumpluff", de:"Papungha" },
+{ id:190, en:"aipom", de:"Griffel" },
+{ id:191, en:"sunkern", de:"Sonnkern" },
+{ id:192, en:"sunflora", de:"Sonnflora" },
+{ id:193, en:"yanma", de:"Yanma" },
+{ id:194, en:"wooper", de:"Felino" },
+{ id:195, en:"quagsire", de:"Morlord" },
+{ id:196, en:"espeon", de:"Psiana" },
+{ id:197, en:"umbreon", de:"Nachtara" },
+
+{ id:198, en:"murkrow", de:"Kramurx" },
+{ id:199, en:"slowking", de:"Laschoking" },
+{ id:200, en:"misdreavus", de:"Traunfugil" },
+{ id:201, en:"unown", de:"Icognito" },
+{ id:202, en:"wobbuffet", de:"Woingenau" },
+{ id:203, en:"girafarig", de:"Girafarig" },
+{ id:204, en:"pineco", de:"Tannza" },
+{ id:205, en:"forretress", de:"Forstellka" },
+{ id:206, en:"dunsparce", de:"Dummisel" },
+
+{ id:207, en:"gligar", de:"Skorgla" },
+{ id:208, en:"steelix", de:"Stahlos" },
+{ id:209, en:"snubbull", de:"Snubbull" },
+{ id:210, en:"granbull", de:"Granbull" },
+{ id:211, en:"qwilfish", de:"Baldorfish" },
+{ id:212, en:"scizor", de:"Scherox" },
+{ id:213, en:"shuckle", de:"Pottrott" },
+{ id:214, en:"heracross", de:"Skaraborn" },
+{ id:215, en:"sneasel", de:"Sniebel" },
+
+{ id:216, en:"teddiursa", de:"Teddiursa" },
+{ id:217, en:"ursaring", de:"Ursaring" },
+{ id:218, en:"slugma", de:"Schneckmag" },
+{ id:219, en:"magcargo", de:"Magcargo" },
+{ id:220, en:"swinub", de:"Quiekel" },
+{ id:221, en:"piloswine", de:"Keifel" },
+{ id:222, en:"corsola", de:"Corasonn" },
+{ id:223, en:"remoraid", de:"Remoraid" },
+{ id:224, en:"octillery", de:"Octillery" },
+
+{ id:225, en:"delibird", de:"Botogel" },
+{ id:226, en:"mantine", de:"Mantax" },
+{ id:227, en:"skarmory", de:"Panzaeron" },
+{ id:228, en:"houndour", de:"Hunduster" },
+{ id:229, en:"houndoom", de:"Hundemon" },
+{ id:230, en:"kingdra", de:"Seedraking" },
+{ id:231, en:"phanpy", de:"Phanpy" },
+{ id:232, en:"donphan", de:"Donphan" },
+{ id:233, en:"porygon2", de:"Porygon2" },
+
+{ id:234, en:"stantler", de:"Damhirplex" },
+{ id:235, en:"smeargle", de:"Farbeagle" },
+{ id:236, en:"tyrogue", de:"Rabauz" },
+{ id:237, en:"hitmontop", de:"Kapoera" },
+{ id:238, en:"smoochum", de:"Kussilla" },
+{ id:239, en:"elekid", de:"Elektek" },
+{ id:240, en:"magby", de:"Magby" },
+{ id:241, en:"miltank", de:"Miltank" },
+{ id:242, en:"blissey", de:"Heiteira" },
+
+{ id:243, en:"raikou", de:"Raikou" },
+{ id:244, en:"entei", de:"Entei" },
+{ id:245, en:"suicune", de:"Suicune" },
+{ id:246, en:"larvitar", de:"Larvitar" },
+{ id:247, en:"pupitar", de:"Pupitar" },
+{ id:248, en:"tyranitar", de:"Despotar" },
+{ id:249, en:"lugia", de:"Lugia" },
+{ id:250, en:"ho-oh", de:"Ho-Oh" },
+{ id:251, en:"celebi", de:"Celebi" }
+]
