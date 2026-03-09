@@ -3,7 +3,7 @@
 import { Encounter, Player } from "@/lib/types";
 import { TypePill } from "./TypePill";
 import { TYPE_META, normalizeType } from "@/lib/pokemon-types";
-import { displayGen1De } from "@/lib/pokedex-gen1";
+import { displayPokemonDe } from "@/lib/pokedex";
 
 function cardBg(status: Encounter["status"]) {
   if (status === "dead") return "bg-red-950/40 border-red-900/60";
@@ -14,7 +14,9 @@ function cardBg(status: Encounter["status"]) {
 function typeRing(type1?: string | null) {
   if (!type1) return "";
   const key = normalizeType(type1);
-  return TYPE_META[key]?.accent ? `ring-1 ${TYPE_META[key].accent}` : "ring-1 ring-zinc-700/30";
+  return TYPE_META[key]?.accent
+    ? `ring-1 ${TYPE_META[key].accent}`
+    : "ring-1 ring-zinc-700/30";
 }
 
 export function PlayerBoard({
@@ -26,7 +28,9 @@ export function PlayerBoard({
   team: Array<Encounter & { routeName: string }>;
   onSelectEncounter?: (e: Encounter & { routeName: string }) => void;
 }) {
-  const slots = [1, 2, 3, 4, 5, 6].map((s) => team.find((e) => e.team_slot === s) ?? null);
+  const slots = [1, 2, 3, 4, 5, 6].map(
+    (s) => team.find((e) => e.team_slot === s) ?? null
+  );
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
@@ -37,6 +41,7 @@ export function PlayerBoard({
           <span className="px-2 py-1 rounded-full bg-zinc-800 border border-zinc-700/80">
             Tode: {player.deaths}
           </span>
+
           <span className="px-2 py-1 rounded-full bg-zinc-800 border border-zinc-700/80">
             Wipes: {player.wipes}
           </span>
@@ -55,7 +60,7 @@ export function PlayerBoard({
                 "rounded-xl border p-3 min-h-[96px]",
                 "transition will-change-transform",
                 "hover:-translate-y-0.5 hover:scale-[1.01] hover:border-zinc-600",
-                "hover:shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_10px_30px_rgba(0,0,0,0.35)]",
+                "hover:shadow-[0_0_1px_rgba(255,255,255,0.06),0_10px_30px_rgba(0,0,0,0.35)]",
                 clickable ? "cursor-pointer" : "",
                 e ? cardBg(e.status) : "bg-zinc-950/30 border-zinc-800",
               ].join(" ")}
@@ -72,7 +77,11 @@ export function PlayerBoard({
                   >
                     {e.sprite_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={e.sprite_url} alt={e.pokemon_name ?? ""} className="h-10 w-10" />
+                      <img
+                        src={e.sprite_url}
+                        alt={e.pokemon_name ?? ""}
+                        className="h-10 w-10"
+                      />
                     ) : (
                       <span className="text-xs text-zinc-500">?</span>
                     )}
@@ -80,10 +89,12 @@ export function PlayerBoard({
 
                   <div className="min-w-0">
                     <div className="font-semibold truncate">
-                      {displayGen1De(e.pokemon_name)}
+                      {displayPokemonDe(e.pokemon_name)}
                     </div>
 
-                    <div className="text-xs text-zinc-300 truncate">{e.routeName}</div>
+                    <div className="text-xs text-zinc-300 truncate">
+                      {e.routeName}
+                    </div>
 
                     <div className="mt-2 flex gap-1 flex-wrap">
                       {e.type1 ? <TypePill t={e.type1} /> : null}
