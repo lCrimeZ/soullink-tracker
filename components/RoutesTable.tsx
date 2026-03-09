@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Encounter, Player, Route } from "@/lib/types";
 import { TypePill } from "./TypePill";
-import { displayGen1De } from "@/lib/pokedex-gen1";
+import { displayPokemonDe } from "@/lib/pokedex";
 
 function statusIcon(status: Encounter["status"] | null | undefined) {
   if (status === "dead") return "☠";
@@ -17,7 +17,10 @@ function statusPillClass(status: Encounter["status"] | null | undefined) {
   return "bg-emerald-950/30 border-emerald-900/40 text-emerald-200";
 }
 
-function cardClass(hasMon: boolean, status: Encounter["status"] | null | undefined) {
+function cardClass(
+  hasMon: boolean,
+  status: Encounter["status"] | null | undefined
+) {
   if (!hasMon) return "bg-zinc-950/30 border-zinc-800";
   if (status === "dead") return "bg-red-950/25 border-red-900/40";
   if (status === "lost") return "bg-zinc-950/35 border-zinc-800";
@@ -45,9 +48,9 @@ export function RoutesTable({
     return routes.filter((r) => (r.name ?? "").toLowerCase().includes(query));
   }, [q, routes]);
 
-  // Helper: find encounter for (route, player)
   const getEncounter = (routeId: string, playerId: string) =>
-    encounters.find((e) => e.route_id === routeId && e.player_id === playerId) ?? null;
+    encounters.find((e) => e.route_id === routeId && e.player_id === playerId) ??
+    null;
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
@@ -77,7 +80,6 @@ export function RoutesTable({
 
           <tbody className="border-t border-zinc-800">
             {filteredRoutes.map((route) => {
-              // ✅ Route done = beide Spieler haben pokemon_name
               const p1 = players[0]?.id;
               const p2 = players[1]?.id;
 
@@ -88,7 +90,6 @@ export function RoutesTable({
 
               return (
                 <tr key={route.id} className="border-b border-zinc-800/70">
-                  {/* Route name + DONE badge */}
                   <td className="py-4 pr-4 align-top text-zinc-200 font-medium">
                     <div className="flex items-center gap-2">
                       <span className="truncate">{route.name}</span>
@@ -103,7 +104,6 @@ export function RoutesTable({
 
                   {players.map((player) => {
                     const enc = getEncounter(route.id, player.id);
-
                     const hasMon = Boolean(enc?.pokemon_name);
                     const clickable = Boolean(isAdmin && onEdit && enc);
 
@@ -138,24 +138,21 @@ export function RoutesTable({
                             </div>
 
                             <div className="min-w-0 flex-1">
-                              {/* Name + Status icon */}
                               <div className="flex items-center gap-2 min-w-0">
                                 <span className="text-base">
                                   {hasMon ? statusIcon(enc?.status) : "—"}
                                 </span>
 
                                 <div className="font-semibold truncate">
-                                  {hasMon ? displayGen1De(enc?.pokemon_name) : "—"}
+                                  {hasMon ? displayPokemonDe(enc?.pokemon_name) : "—"}
                                 </div>
                               </div>
 
-                              {/* Types */}
                               <div className="mt-2 flex gap-1 flex-wrap">
                                 {enc?.type1 ? <TypePill t={enc.type1} /> : null}
                                 {enc?.type2 ? <TypePill t={enc.type2} /> : null}
                               </div>
 
-                              {/* Status pill */}
                               <div className="mt-2">
                                 <span
                                   className={[
