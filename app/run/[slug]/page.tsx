@@ -45,7 +45,7 @@ export default async function RunPage({ params }: { params: { slug: string } }) 
         <div className="max-w-6xl mx-auto space-y-5">
 
           {/* Header */}
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 flex items-center justify-between gap-4 flex-wrap">
+          <div className="poke-header poke-glass">
             <div>
               <div className="text-sm text-zinc-300">
                 {data.run.game} · Gen {data.run.gen}
