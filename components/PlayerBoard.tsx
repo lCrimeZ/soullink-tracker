@@ -40,7 +40,7 @@ export function PlayerBoard({
   );
 
   return (
-    <div className="poke-card">
+    <div className="poke-card fade-in-up">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="font-semibold text-lg">{player.name}</div>
 
