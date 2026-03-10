@@ -341,7 +341,7 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -1;
+  z-index: 12;
   overflow: hidden;
 }
 
@@ -394,7 +394,7 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -2;
+  z-index: 11;
   overflow: hidden;
 }
 
@@ -462,7 +462,7 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -3;
+  z-index: 10;
   overflow: hidden;
 }
 
@@ -484,4 +484,10 @@ body {
   animation: hoohSunFlash 30s ease-in-out infinite;
   mix-blend-mode: screen;
   filter: blur(8px);
+}
+
+/* content layer */
+.content-stage {
+  position: relative;
+  z-index: 20;
 }
