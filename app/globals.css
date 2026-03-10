@@ -177,3 +177,128 @@ body {
     box-shadow 0.25s ease,
     border-color 0.25s ease;
 }
+
+/* ---------- Motion ---------- */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatPokemon {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes badgePulse {
+  0% {
+    box-shadow:
+      0 0 10px rgba(212,175,55,0.22),
+      0 0 24px rgba(212,175,55,0.08);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(212,175,55,0.45),
+      0 0 42px rgba(212,175,55,0.16);
+  }
+  100% {
+    box-shadow:
+      0 0 10px rgba(212,175,55,0.22),
+      0 0 24px rgba(212,175,55,0.08);
+  }
+}
+
+@keyframes softShimmer {
+  0% {
+    background-position: -220px 0;
+  }
+  100% {
+    background-position: 220px 0;
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.45s ease both;
+}
+
+.float-pokemon {
+  animation: floatPokemon 3.2s ease-in-out infinite;
+}
+
+.badge-pulse {
+  animation: badgePulse 2.8s ease-in-out infinite;
+}
+
+.soft-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.soft-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 220, 120, 0.00) 35%,
+    rgba(255, 220, 120, 0.10) 50%,
+    rgba(255, 220, 120, 0.00) 65%,
+    transparent 100%
+  );
+  background-size: 220px 100%;
+  background-repeat: no-repeat;
+  animation: softShimmer 4.5s linear infinite;
+  pointer-events: none;
+}
+
+/* ---------- Better hover polish ---------- */
+
+.poke-card,
+.poke-arena,
+.poke-slot {
+  will-change: transform, box-shadow;
+}
+
+.poke-card:hover {
+  transform: translateY(-2px);
+}
+
+.poke-arena:hover {
+  transform: translateY(-3px) scale(1.01);
+}
+
+.poke-slot:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* ---------- Respect reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up,
+  .float-pokemon,
+  .badge-pulse,
+  .soft-shimmer::after {
+    animation: none !important;
+  }
+
+  .poke-card,
+  .poke-arena,
+  .poke-slot,
+  * {
+    transition: none !important;
+  }
+}
