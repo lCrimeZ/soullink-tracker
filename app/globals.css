@@ -302,3 +302,99 @@ body {
     transition: none !important;
   }
 }
+
+/* ---------- Ho-Oh Aura ---------- */
+
+@keyframes hoohAuraPulse {
+  0% {
+    opacity: 0.32;
+    transform: scale(0.98);
+    filter: blur(42px);
+  }
+  50% {
+    opacity: 0.52;
+    transform: scale(1.03);
+    filter: blur(54px);
+  }
+  100% {
+    opacity: 0.32;
+    transform: scale(0.98);
+    filter: blur(42px);
+  }
+}
+
+@keyframes hoohAuraDrift {
+  0% {
+    transform: translate3d(-1.5%, 0, 0);
+  }
+  50% {
+    transform: translate3d(1.5%, -1%, 0);
+  }
+  100% {
+    transform: translate3d(-1.5%, 0, 0);
+  }
+}
+
+.hooh-aura {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hooh-aura::before,
+.hooh-aura::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.hooh-aura::before {
+  width: min(72vw, 980px);
+  height: min(42vw, 560px);
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 225, 120, 0.26) 0%,
+      rgba(255, 190, 70, 0.18) 24%,
+      rgba(255, 120, 20, 0.10) 46%,
+      rgba(255, 80, 0, 0.00) 72%
+    );
+  animation:
+    hoohAuraPulse 6s ease-in-out infinite,
+    hoohAuraDrift 12s ease-in-out infinite;
+}
+
+.hooh-aura::after {
+  width: min(54vw, 760px);
+  height: min(28vw, 380px);
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 245, 180, 0.18) 0%,
+      rgba(255, 215, 90, 0.14) 26%,
+      rgba(255, 160, 40, 0.06) 52%,
+      rgba(255, 120, 0, 0.00) 74%
+    );
+  animation:
+    hoohAuraPulse 4.8s ease-in-out infinite reverse,
+    hoohAuraDrift 10s ease-in-out infinite reverse;
+}
+
+/* optional: content gets a tiny bit more separation */
+.content-stage {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hooh-aura::before,
+  .hooh-aura::after {
+    animation: none !important;
+  }
+}
