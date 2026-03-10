@@ -1,92 +1,47 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import type { Encounter, Player, Route } from "@/lib/types";
-import { fetchPokemon } from "@/lib/pokemon";
-import {
-  displayPokemonDe,
-  resolvePokemonToEn,
-  searchPokemon,
-} from "@/lib/pokedex";
+import { useState } from "react";
 
 export function EditEncounterModal({
   open,
-  onClose,
   encounter,
   route,
   player,
+  onClose,
   onSaved,
-}: {
-  open: boolean;
-  onClose: () => void;
-  encounter: Encounter | null;
-  route: Route | null;
-  player: Player | null;
-  onSaved: () => void;
-}) {
+}: any) {
   const [saving, setSaving] = useState(false);
-
-  // Suchfeld zeigt DE an, gespeichert wird EN
   const [query, setQuery] = useState("");
-  const [pickedEn, setPickedEn] = useState("");
 
-  useEffect(() => {
-    if (!open || !encounter) return;
-
-    const en = encounter.pokemon_name ?? "";
-    setPickedEn("");
-    setQuery(en ? displayPokemonDe(en) : "");
-  }, [open, encounter?.id]);
-
-  const suggestions = useMemo(() => {
-    if (!query.trim()) return [];
-    return searchPokemon(query, 10);
-  }, [query]);
-
-  if (!open || !encounter || !route || !player) return null;
+  if (!open || !encounter) return null;
 
   async function save(formData: FormData) {
-    if (!encounter) return;
     if (saving) return;
 
     setSaving(true);
 
+    const payload = {
+      encounter_id: encounter.id,
+      pokemon_name: formData.get("pokemon_name") || null,
+      sprite_url: formData.get("sprite_url") || null,
+      type1: formData.get("type1") || null,
+      type2: formData.get("type2") || null,
+      status: formData.get("status") || "alive",
+      team_slot: Number(formData.get("team_slot")) || null,
+      notes: formData.get("notes") || null,
+    };
+
     try {
-      const rawInput = ((formData.get("pokemon_name") as string) || "").trim();
-
-      const resolvedEn =
-        resolvePokemonToEn(pickedEn) ||
-        resolvePokemonToEn(rawInput) ||
-        null;
-
-      const pokemon = resolvedEn ? await fetchPokemon(resolvedEn) : null;
-
-      const manualSprite = ((formData.get("sprite_url") as string) || "").trim();
-      const manualType1 = ((formData.get("type1") as string) || "").trim();
-      const manualType2 = ((formData.get("type2") as string) || "").trim();
-
-      const payload = {
-        encounter_id: encounter.id,
-        pokemon_name: resolvedEn,
-        sprite_url: pokemon?.sprite || manualSprite || null,
-        type1: pokemon?.type1 || manualType1 || null,
-        type2: pokemon?.type2 || manualType2 || null,
-        status: formData.get("status") as "alive" | "dead" | "lost",
-        team_slot: formData.get("team_slot")
-          ? Number(formData.get("team_slot"))
-          : null,
-        notes: (formData.get("notes") as string) || null,
-      };
-
       const res = await fetch("/api/encounter/update", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        alert(data?.error ?? "Fehler beim Speichern");
+        alert("Fehler beim Speichern");
         return;
       }
 
@@ -98,95 +53,64 @@ export function EditEncounterModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
-        <div className="flex items-start justify-between gap-3">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
+      <div className="w-full max-w-lg rounded-2xl border border-[rgba(212,175,55,0.45)] bg-zinc-900/95 shadow-[0_0_40px_rgba(0,0,0,0.6)] p-6">
+
+        {/* Header */}
+        <div className="flex items-start justify-between mb-5">
           <div>
-            <div className="text-sm text-zinc-300">
-              {route.name} · {player.name}
-            </div>
-            <div className="text-xl font-semibold mt-1">
-              Encounter bearbeiten
+            <div className="text-sm text-zinc-400">{player?.name}</div>
+            <div className="text-xl font-bold text-zinc-100">
+              {route?.name}
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800"
+            className="rounded-lg border border-zinc-700 px-3 py-1 text-sm hover:bg-zinc-800"
           >
             ✕
           </button>
         </div>
 
-        <form action={save} className="mt-4 grid gap-3">
-          {/* Pokémon Suche */}
-          <div className="relative">
-            <input
-              name="pokemon_name"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setPickedEn("");
-              }}
-              placeholder="Pokémon (z.B. Schiggy / Endivie / Squirtle)"
-              className="rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-3 w-full"
-              autoComplete="off"
-            />
+        {/* Form */}
+        <form action={save} className="grid gap-4">
 
-            {query.trim() && suggestions.length > 0 && (
-              <div className="absolute z-10 mt-2 w-full rounded-2xl border border-zinc-800 bg-zinc-950 overflow-hidden shadow-xl">
-                {suggestions.map((p) => (
-                  <button
-                    key={p.en}
-                    type="button"
-                    onClick={() => {
-                      setPickedEn(p.en);
-                      setQuery(p.de);
-                    }}
-                    className="w-full text-left px-4 py-2 hover:bg-zinc-900 flex items-center justify-between"
-                  >
-                    <span className="text-zinc-100 font-medium">{p.de}</span>
-                    <span className="text-xs text-zinc-400">{p.en}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div className="mt-2 text-xs text-zinc-400">
-              Wird gespeichert als:{" "}
-              <span className="text-zinc-200 font-semibold">
-                {pickedEn || resolvePokemonToEn(query) || "—"}
-              </span>
-            </div>
-          </div>
+          <input
+            name="pokemon_name"
+            defaultValue={encounter?.pokemon_name ?? ""}
+            placeholder="Pokémon (z.B. Riolu)"
+            className="rounded-xl border border-[rgba(212,175,55,0.25)] bg-zinc-950 px-4 py-2 text-zinc-100"
+          />
 
           <input
             name="sprite_url"
-            defaultValue={encounter.sprite_url ?? ""}
-            placeholder="Sprite URL (leer lassen = automatisch)"
-            className="rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-3"
+            defaultValue={encounter?.sprite_url ?? ""}
+            placeholder="Sprite URL"
+            className="rounded-xl border border-[rgba(212,175,55,0.25)] bg-zinc-950 px-4 py-2 text-zinc-100"
           />
 
           <div className="grid grid-cols-2 gap-3">
             <input
               name="type1"
-              defaultValue={encounter.type1 ?? ""}
-              placeholder="Typ 1 (leer lassen = automatisch)"
-              className="rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-3"
+              defaultValue={encounter?.type1 ?? ""}
+              placeholder="Typ 1"
+              className="rounded-xl border border-[rgba(212,175,55,0.25)] bg-zinc-950 px-4 py-2 text-zinc-100"
             />
+
             <input
               name="type2"
-              defaultValue={encounter.type2 ?? ""}
-              placeholder="Typ 2 (optional)"
-              className="rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-3"
+              defaultValue={encounter?.type2 ?? ""}
+              placeholder="Typ 2"
+              className="rounded-xl border border-[rgba(212,175,55,0.25)] bg-zinc-950 px-4 py-2 text-zinc-100"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <select
               name="status"
-              defaultValue={encounter.status}
-              className="rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-3"
+              defaultValue={encounter?.status ?? "alive"}
+              className="rounded-xl border border-[rgba(212,175,55,0.25)] bg-zinc-950 px-4 py-2 text-zinc-100"
             >
               <option value="alive">alive</option>
               <option value="dead">dead</option>
@@ -195,13 +119,13 @@ export function EditEncounterModal({
 
             <select
               name="team_slot"
-              defaultValue={encounter.team_slot ?? ""}
-              className="rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-3"
+              defaultValue={encounter?.team_slot ?? ""}
+              className="rounded-xl border border-[rgba(212,175,55,0.25)] bg-zinc-950 px-4 py-2 text-zinc-100"
             >
-              <option value="">Team-Slot (optional)</option>
-              {[1, 2, 3, 4, 5, 6].map((n) => (
-                <option key={n} value={n}>
-                  {n}
+              <option value="">Team Slot</option>
+              {[1, 2, 3, 4, 5, 6].map((s) => (
+                <option key={s} value={s}>
+                  {s}
                 </option>
               ))}
             </select>
@@ -209,14 +133,14 @@ export function EditEncounterModal({
 
           <textarea
             name="notes"
-            defaultValue={encounter.notes ?? ""}
+            defaultValue={encounter?.notes ?? ""}
             placeholder="Notizen"
-            className="rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-3 min-h-[90px]"
+            className="rounded-xl border border-[rgba(212,175,55,0.25)] bg-zinc-950 px-4 py-2 text-zinc-100 h-20"
           />
 
           <button
             disabled={saving}
-            className="rounded-xl bg-emerald-500/90 hover:bg-emerald-500 px-4 py-3 font-semibold disabled:opacity-60"
+            className="mt-2 rounded-xl border border-[rgba(212,175,55,0.45)] bg-emerald-700 hover:bg-emerald-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
           >
             {saving ? "Speichern..." : "Speichern"}
           </button>
