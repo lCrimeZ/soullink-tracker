@@ -38,7 +38,7 @@ export function LevelCaps({
       const res = await fetch("/api/cap/toggle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ capId: cap.id, cleared: next }),
+        body: JSON.stringify({ cap_id: cap.id, cleared: next }),
       });
 
       if (!res.ok) {
