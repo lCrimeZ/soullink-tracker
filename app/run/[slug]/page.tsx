@@ -48,7 +48,7 @@ export default async function RunPage({
       <div className="relative p-6">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
-          <div className="poke-header poke-glass">
+          <div className="poke-header poke-glass fade-in-up soft-shimmer">
             <div>
               <div className="text-sm text-zinc-300">
                 {data.run.game} · Gen {data.run.gen}
