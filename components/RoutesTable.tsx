@@ -1,30 +1,54 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Encounter, Player, Route } from "@/lib/types";
+import { Encounter, Player, Route } from "@/lib/types";
 import { TypePill } from "./TypePill";
 import { displayPokemonDe } from "@/lib/pokedex";
 
 function statusIcon(status: Encounter["status"] | null | undefined) {
-  if (status === "dead") return "☠";
+  if (status === "dead") return "💀";
   if (status === "lost") return "⛔";
   return "✅";
 }
 
-function statusPillClass(status: Encounter["status"] | null | undefined) {
-  if (status === "dead") return "bg-red-950/40 border-red-900/60 text-red-200";
-  if (status === "lost") return "bg-zinc-900/40 border-zinc-700 text-zinc-200";
-  return "bg-emerald-950/30 border-emerald-900/40 text-emerald-200";
+function statusLabel(status: Encounter["status"] | null | undefined) {
+  if (status === "dead") return "dead";
+  if (status === "lost") return "lost";
+  return "alive";
 }
 
-function cardClass(
-  hasMon: boolean,
-  status: Encounter["status"] | null | undefined
-) {
-  if (!hasMon) return "bg-zinc-950/30 border-zinc-800";
-  if (status === "dead") return "bg-red-950/25 border-red-900/40";
-  if (status === "lost") return "bg-zinc-950/35 border-zinc-800";
-  return "bg-emerald-950/15 border-zinc-800";
+function statusPillClass(status: Encounter["status"] | null | undefined) {
+  if (status === "dead") {
+    return "border-red-800/70 bg-red-950/40 text-red-200";
+  }
+
+  if (status === "lost") {
+    return "border-zinc-700 bg-zinc-900/80 text-zinc-300";
+  }
+
+  return "border-emerald-700/60 bg-emerald-950/20 text-emerald-200";
+}
+
+function encounterCardClass({
+  exists,
+  status,
+}: {
+  exists: boolean;
+  status: Encounter["status"] | null | undefined;
+}) {
+  if (!exists) {
+    return "border-[rgba(212,175,55,0.20)] bg-black/20";
+  }
+
+  if (status === "dead") {
+    return "border-red-900/50 bg-red-950/20";
+  }
+
+  if (status === "lost") {
+    return "border-zinc-800 bg-zinc-950/40";
+  }
+
+  return "border-[rgba(212,175,55,0.26)] bg-emerald-950/10";
 }
 
 export function RoutesTable({
@@ -44,41 +68,60 @@ export function RoutesTable({
 
   const filteredRoutes = useMemo(() => {
     const query = q.trim().toLowerCase();
+
     if (query.length < 2) return routes;
+
     return routes.filter((r) => (r.name ?? "").toLowerCase().includes(query));
   }, [q, routes]);
 
-  const getEncounter = (routeId: string, playerId: string) =>
-    encounters.find((e) => e.route_id === routeId && e.player_id === playerId) ??
-    null;
+  function getEncounter(routeId: string, playerId: string) {
+    return encounters.find(
+      (e) => e.route_id === routeId && e.player_id === playerId
+    );
+  }
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="font-semibold text-lg">Routen</div>
+    <div className="poke-card poke-glass p-5">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
+            Routen
+          </h2>
+          <div className="mt-1 text-sm text-zinc-400">
+            {filteredRoutes.length} / {routes.length} sichtbar
+          </div>
+        </div>
 
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Route suchen (ab 2 Zeichen)..."
-          className="w-full sm:w-[420px] rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-3"
-        />
+        <div className="w-full max-w-xl">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Route suchen (ab 2 Zeichen)..."
+            className="w-full rounded-2xl border border-[rgba(212,175,55,0.28)] bg-zinc-900/85 px-5 py-3 text-zinc-100 placeholder:text-zinc-500 outline-none transition focus:border-[rgba(212,175,55,0.60)] focus:shadow-[0_0_0_1px_rgba(212,175,55,0.18),0_0_16px_rgba(212,175,55,0.08)]"
+          />
+        </div>
       </div>
 
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[900px] text-sm">
+      <div className="mt-6 overflow-x-auto">
+        <table className="w-full border-separate border-spacing-y-4">
           <thead>
-            <tr className="text-left text-zinc-300">
-              <th className="py-3 pr-4 w-[240px]">Route</th>
+            <tr>
+              <th className="pb-2 pr-4 text-left text-sm font-semibold text-zinc-300">
+                Route
+              </th>
+
               {players.map((p) => (
-                <th key={p.id} className="py-3 pr-4">
+                <th
+                  key={p.id}
+                  className="pb-2 text-left text-sm font-semibold text-zinc-300"
+                >
                   {p.name}
                 </th>
               ))}
             </tr>
           </thead>
 
-          <tbody className="border-t border-zinc-800">
+          <tbody>
             {filteredRoutes.map((route) => {
               const p1 = players[0]?.id;
               const p2 = players[1]?.id;
@@ -86,82 +129,91 @@ export function RoutesTable({
               const e1 = p1 ? getEncounter(route.id, p1) : null;
               const e2 = p2 ? getEncounter(route.id, p2) : null;
 
-              const routeDone = Boolean(e1?.pokemon_name) && Boolean(e2?.pokemon_name);
+              const routeDone =
+                Boolean(e1?.pokemon_name) && Boolean(e2?.pokemon_name);
 
               return (
-                <tr key={route.id} className="border-b border-zinc-800/70">
-                  <td className="py-4 pr-4 align-top text-zinc-200 font-medium">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate">{route.name}</span>
-
-                      {routeDone ? (
-                        <span className="px-2 py-0.5 rounded-full text-xs border border-emerald-700/60 bg-emerald-900/20 text-emerald-200">
-                          Erledigt ✓
+                <tr key={route.id}>
+                  <td className="align-top pr-4">
+                    <div className="pt-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-zinc-100">
+                          {route.name}
                         </span>
-                      ) : null}
+
+                        {routeDone ? (
+                          <span className="rounded-full border border-emerald-700/60 bg-emerald-950/20 px-2.5 py-0.5 text-xs text-emerald-200">
+                            Erledigt
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
                   </td>
 
                   {players.map((player) => {
                     const enc = getEncounter(route.id, player.id);
                     const hasMon = Boolean(enc?.pokemon_name);
-                    const clickable = Boolean(isAdmin && onEdit && enc);
+                    const clickable = Boolean(isAdmin && enc && onEdit);
 
                     return (
-                      <td key={player.id} className="py-4 pr-4 align-top">
+                      <td key={player.id} className="align-top">
                         <button
                           type="button"
                           disabled={!clickable}
                           onClick={() => enc && onEdit?.(enc, route, player)}
                           className={[
-                            "w-full text-left rounded-xl border p-3 transition",
-                            "hover:border-zinc-700",
+                            "w-full rounded-3xl border p-4 text-left transition-all",
+                            "backdrop-blur-sm",
                             clickable
-                              ? "cursor-pointer hover:translate-y-[-1px]"
+                              ? "cursor-pointer hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.35),0_0_14px_rgba(212,175,55,0.10)]"
                               : "cursor-default",
-                            cardClass(hasMon, enc?.status),
+                            encounterCardClass({
+                              exists: hasMon,
+                              status: enc?.status,
+                            }),
                           ].join(" ")}
                           title={clickable ? "Bearbeiten" : ""}
                         >
-                          <div className="flex items-start gap-3">
-                            <div className="h-12 w-12 rounded-lg bg-zinc-950/40 border border-zinc-800 flex items-center justify-center overflow-hidden shrink-0">
+                          <div className="flex items-start gap-4">
+                            <div className="h-14 w-14 rounded-2xl border border-[rgba(212,175,55,0.22)] bg-zinc-900/80 flex items-center justify-center overflow-hidden shrink-0">
                               {enc?.sprite_url ? (
-                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                   src={enc.sprite_url}
-                                  alt={enc.pokemon_name ?? ""}
-                                  className="h-10 w-10"
+                                  alt={enc.pokemon_name ?? "Pokémon"}
+                                  className="h-12 w-12 object-contain poke-sprite"
                                 />
                               ) : (
-                                <span className="text-xs text-zinc-500">?</span>
+                                <span className="text-sm text-zinc-500">?</span>
                               )}
                             </div>
 
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2 min-w-0">
-                                <span className="text-base">
+                                <span className="text-sm">
                                   {hasMon ? statusIcon(enc?.status) : "—"}
                                 </span>
 
-                                <div className="font-semibold truncate">
-                                  {hasMon ? displayPokemonDe(enc?.pokemon_name) : "—"}
+                                <div className="font-semibold text-zinc-100 truncate">
+                                  {hasMon
+                                    ? displayPokemonDe(enc?.pokemon_name)
+                                    : "— —"}
                                 </div>
                               </div>
 
-                              <div className="mt-2 flex gap-1 flex-wrap">
+                              <div className="mt-2 flex flex-wrap gap-1.5">
                                 {enc?.type1 ? <TypePill t={enc.type1} /> : null}
                                 {enc?.type2 ? <TypePill t={enc.type2} /> : null}
                               </div>
 
-                              <div className="mt-2">
+                              <div className="mt-3">
                                 <span
                                   className={[
-                                    "inline-flex items-center gap-2 px-2 py-1 rounded-full border text-xs",
+                                    "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium",
                                     statusPillClass(enc?.status),
                                   ].join(" ")}
                                 >
                                   <span>{statusIcon(enc?.status)}</span>
-                                  <span>{enc?.status ?? "alive"}</span>
+                                  <span>{statusLabel(enc?.status)}</span>
                                 </span>
                               </div>
                             </div>
@@ -178,7 +230,9 @@ export function RoutesTable({
       </div>
 
       {q.trim().length >= 2 && filteredRoutes.length === 0 ? (
-        <div className="mt-4 text-zinc-400 text-sm">Keine Route gefunden.</div>
+        <div className="mt-4 text-sm text-zinc-400">
+          Keine Route gefunden.
+        </div>
       ) : null}
     </div>
   );
