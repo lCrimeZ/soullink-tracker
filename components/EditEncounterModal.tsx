@@ -99,7 +99,7 @@ export function EditEncounterModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+      <div className="w-full max-w-lg rounded-2xl border border-[rgba(212,175,55,0.45)] bg-zinc-900/95 shadow-[0_0_40px_rgba(0,0,0,0.6)] p-6 fade-in-up soft-shimmer">
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="text-sm text-zinc-300">
