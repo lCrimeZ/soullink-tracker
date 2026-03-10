@@ -7,7 +7,11 @@ import RunClient from "./run-client";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function RunPage({ params }: { params: { slug: string } }) {
+export default async function RunPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const data = await loadRunBySlug(params.slug);
   const admin = isAdmin();
 
@@ -36,14 +40,13 @@ export default async function RunPage({ params }: { params: { slug: string } }) 
 
   return (
     <div className="min-h-screen relative overflow-hidden text-zinc-100">
-
-      {/* Pokémon Style Glow */}
-      <div className="absolute top-[-200px] left-[-200px] w-[500px] h-[500px] bg-red-500/10 blur-3xl rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-200px] right-[-200px] w-[500px] h-[500px] bg-blue-500/10 blur-3xl rounded-full pointer-events-none" />
+      {/* Background Glow */}
+      <div className="absolute -top-[220px] -left-[220px] w-[520px] h-[520px] rounded-full blur-3xl pointer-events-none bg-red-900/25" />
+      <div className="absolute -bottom-[240px] -right-[220px] w-[520px] h-[520px] rounded-full blur-3xl pointer-events-none bg-amber-500/10" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.08),transparent_35%)]" />
 
       <div className="relative p-6">
-        <div className="max-w-6xl mx-auto space-y-5">
-
+        <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
           <div className="poke-header poke-glass">
             <div>
@@ -51,35 +54,37 @@ export default async function RunPage({ params }: { params: { slug: string } }) 
                 {data.run.game} · Gen {data.run.gen}
               </div>
 
-              <div className="text-2xl font-semibold">
+              <div className="text-3xl font-bold tracking-tight mt-1">
                 {data.run.title}
               </div>
 
-              <div className="text-xs text-zinc-400 mt-1">
+              <div className="text-sm text-zinc-400 mt-2">
                 Share: /run/{data.run.slug}
               </div>
             </div>
 
-            <div className="flex gap-2 text-sm">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="rounded-xl border border-[rgba(212,175,55,0.45)] bg-black/30 px-4 py-2 backdrop-blur-sm shadow-[0_0_14px_rgba(212,175,55,0.08)]">
+                <div className="text-xs uppercase tracking-[0.18em] text-zinc-400">
+                  Current Cap
+                </div>
+                <div className="text-sm font-semibold text-zinc-100 mt-1">
+                  {currentCap
+                    ? `${currentCap.label}: ${currentCap.cap_p1 ?? "-"} / ${currentCap.cap_p2 ?? "-"}`
+                    : "Kein Level Cap"}
+                </div>
+              </div>
 
-              <span className="px-3 py-2 rounded-xl poke-card">
-                Level Cap (MVP):{" "}
-                <span className="font-semibold text-zinc-100">
-                  {currentCap?.cap_p1 ?? "-"} / {currentCap?.cap_p2 ?? "-"}
-                </span>
-              </span>
-
-              <span
+              <div
                 className={[
-                  "px-3 py-2 rounded-xl border",
+                  "rounded-xl border px-4 py-2 text-sm font-semibold backdrop-blur-sm",
                   admin
-                    ? "bg-emerald-950/30 border-emerald-800/50"
-                    : "bg-zinc-950/40 border-zinc-800",
+                    ? "border-emerald-500/40 bg-emerald-950/40 text-emerald-200 shadow-[0_0_14px_rgba(16,185,129,0.12)]"
+                    : "border-zinc-700 bg-zinc-900/60 text-zinc-300",
                 ].join(" ")}
               >
                 {admin ? "Admin: edit enabled" : "Read-only"}
-              </span>
-
+              </div>
             </div>
           </div>
 
@@ -94,7 +99,6 @@ export default async function RunPage({ params }: { params: { slug: string } }) 
 
           {/* Client */}
           <RunClient initial={data} isAdmin={admin} />
-
         </div>
       </div>
     </div>
