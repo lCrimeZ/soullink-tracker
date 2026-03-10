@@ -21,7 +21,7 @@ export default function RootLayout({
             className="
               absolute inset-0
               bg-center bg-no-repeat
-              bg-[length:auto_100svh]
+              bg-[length:min(1200px,90vw)]
               md:bg-[length:auto_100svh]
             "
             style={{
