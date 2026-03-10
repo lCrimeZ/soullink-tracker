@@ -100,8 +100,8 @@ export function PlayerBoard({
                     </div>
 
                     <div className="mt-1 flex gap-1 flex-wrap">
-                      {e.type1 ? <TypePill type={e.type1} /> : null}
-                      {e.type2 ? <TypePill type={e.type2} /> : null}
+                      {e.type1 ? <TypePill t={e.type1} /> : null}
+                      {e.type2 ? <TypePill t={e.type2} /> : null}
                     </div>
                   </div>
                 </div>
