@@ -64,6 +64,8 @@ export default function RootLayout({
 
         {/* Content */}
         <div className="relative min-h-screen">
+          <div className="hooh-aura" />
+          <div className="content-stage">
           {children}
         </div>
       </body>
