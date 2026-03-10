@@ -81,8 +81,8 @@ export function RoutesTable({
   }
 
   return (
-    <div className="poke-card poke-glass p-5">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+    <div className="poke-card poke-glass p-4 sm:p-5 fade-in-up">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
             Routen
@@ -92,7 +92,7 @@ export function RoutesTable({
           </div>
         </div>
 
-        <div className="w-full max-w-xl">
+        <div className="w-full lg:max-w-xl">
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -103,19 +103,27 @@ export function RoutesTable({
       </div>
 
       <div className="mt-6 overflow-x-auto">
-        <table className="w-full border-separate border-spacing-y-4">
+        <table className="w-full border-separate border-spacing-y-5 min-w-[980px]">
+          <colgroup>
+            <col className="w-[220px]" />
+            <col />
+            <col />
+          </colgroup>
+
           <thead>
             <tr>
-              <th className="pb-2 pr-4 text-left text-sm font-semibold text-zinc-300">
+              <th className="pb-2 pr-5 text-left text-sm font-semibold text-zinc-300">
                 Route
               </th>
 
               {players.map((p) => (
                 <th
                   key={p.id}
-                  className="pb-2 text-left text-sm font-semibold text-zinc-300"
+                  className="pb-2 text-center text-sm font-semibold text-zinc-300"
                 >
-                  {p.name}
+                  <span className="inline-flex min-w-[320px] justify-center">
+                    {p.name}
+                  </span>
                 </th>
               ))}
             </tr>
@@ -134,18 +142,35 @@ export function RoutesTable({
 
               return (
                 <tr key={route.id}>
-                  <td className="align-top pr-4">
-                    <div className="pt-3">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-zinc-100">
-                          {route.name}
-                        </span>
+                  <td className="align-top pr-5">
+                    <div className="rounded-2xl border border-[rgba(212,175,55,0.14)] bg-black/10 px-4 py-4">
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={[
+                            "mt-1 h-2.5 w-2.5 rounded-full shrink-0",
+                            routeDone
+                              ? "bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.55)]"
+                              : "bg-[rgba(212,175,55,0.55)] shadow-[0_0_8px_rgba(212,175,55,0.22)]",
+                          ].join(" ")}
+                        />
 
-                        {routeDone ? (
-                          <span className="rounded-full border border-emerald-700/60 bg-emerald-950/20 px-2.5 py-0.5 text-xs text-emerald-200">
-                            Erledigt
-                          </span>
-                        ) : null}
+                        <div className="min-w-0">
+                          <div className="font-semibold text-zinc-100 leading-snug">
+                            {route.name}
+                          </div>
+
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {routeDone ? (
+                              <span className="rounded-full border border-emerald-700/60 bg-emerald-950/20 px-2.5 py-0.5 text-xs text-emerald-200">
+                                Erledigt
+                              </span>
+                            ) : (
+                              <span className="rounded-full border border-[rgba(212,175,55,0.28)] bg-zinc-900/60 px-2.5 py-0.5 text-xs text-zinc-300">
+                                Offen
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -157,68 +182,70 @@ export function RoutesTable({
 
                     return (
                       <td key={player.id} className="align-top">
-                        <button
-                          type="button"
-                          disabled={!clickable}
-                          onClick={() => enc && onEdit?.(enc, route, player)}
-                          className={[
-                            "w-full rounded-3xl border p-4 text-left transition-all",
-                            "backdrop-blur-sm",
-                            clickable
-                              ? "cursor-pointer hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.35),0_0_14px_rgba(212,175,55,0.10)]"
-                              : "cursor-default",
-                            encounterCardClass({
-                              exists: hasMon,
-                              status: enc?.status,
-                            }),
-                          ].join(" ")}
-                          title={clickable ? "Bearbeiten" : ""}
-                        >
-                          <div className="flex items-start gap-4">
-                            <div className="h-14 w-14 rounded-2xl border border-[rgba(212,175,55,0.22)] bg-zinc-900/80 flex items-center justify-center overflow-hidden shrink-0">
-                              {enc?.sprite_url ? (
-                                <img
-                                  src={enc.sprite_url}
-                                  alt={enc.pokemon_name ?? "Pokémon"}
-                                  className="h-12 w-12 object-contain poke-sprite"
-                                />
-                              ) : (
-                                <span className="text-sm text-zinc-500">?</span>
-                              )}
-                            </div>
+                        <div className="flex justify-center">
+                          <button
+                            type="button"
+                            disabled={!clickable}
+                            onClick={() => enc && onEdit?.(enc, route, player)}
+                            className={[
+                              "w-full max-w-[420px] rounded-3xl border p-4 text-left transition-all",
+                              "backdrop-blur-sm",
+                              clickable
+                                ? "cursor-pointer hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.35),0_0_14px_rgba(212,175,55,0.10)]"
+                                : "cursor-default",
+                              encounterCardClass({
+                                exists: hasMon,
+                                status: enc?.status,
+                              }),
+                            ].join(" ")}
+                            title={clickable ? "Bearbeiten" : ""}
+                          >
+                            <div className="flex items-start gap-4">
+                              <div className="h-14 w-14 rounded-2xl border border-[rgba(212,175,55,0.22)] bg-zinc-900/80 flex items-center justify-center overflow-hidden shrink-0">
+                                {enc?.sprite_url ? (
+                                  <img
+                                    src={enc.sprite_url}
+                                    alt={enc.pokemon_name ?? "Pokémon"}
+                                    className="h-12 w-12 object-contain poke-sprite float-pokemon"
+                                  />
+                                ) : (
+                                  <span className="text-sm text-zinc-500">?</span>
+                                )}
+                              </div>
 
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className="text-sm">
-                                  {hasMon ? statusIcon(enc?.status) : "—"}
-                                </span>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="text-sm">
+                                    {hasMon ? statusIcon(enc?.status) : "—"}
+                                  </span>
 
-                                <div className="font-semibold text-zinc-100 truncate">
-                                  {hasMon
-                                    ? displayPokemonDe(enc?.pokemon_name)
-                                    : "— —"}
+                                  <div className="font-semibold text-zinc-100 truncate">
+                                    {hasMon
+                                      ? displayPokemonDe(enc?.pokemon_name)
+                                      : "— —"}
+                                  </div>
+                                </div>
+
+                                <div className="mt-2 flex flex-wrap gap-1.5">
+                                  {enc?.type1 ? <TypePill t={enc.type1} /> : null}
+                                  {enc?.type2 ? <TypePill t={enc.type2} /> : null}
+                                </div>
+
+                                <div className="mt-3">
+                                  <span
+                                    className={[
+                                      "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium",
+                                      statusPillClass(enc?.status),
+                                    ].join(" ")}
+                                  >
+                                    <span>{statusIcon(enc?.status)}</span>
+                                    <span>{statusLabel(enc?.status)}</span>
+                                  </span>
                                 </div>
                               </div>
-
-                              <div className="mt-2 flex flex-wrap gap-1.5">
-                                {enc?.type1 ? <TypePill t={enc.type1} /> : null}
-                                {enc?.type2 ? <TypePill t={enc.type2} /> : null}
-                              </div>
-
-                              <div className="mt-3">
-                                <span
-                                  className={[
-                                    "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium",
-                                    statusPillClass(enc?.status),
-                                  ].join(" ")}
-                                >
-                                  <span>{statusIcon(enc?.status)}</span>
-                                  <span>{statusLabel(enc?.status)}</span>
-                                </span>
-                              </div>
                             </div>
-                          </div>
-                        </button>
+                          </button>
+                        </div>
                       </td>
                     );
                   })}
