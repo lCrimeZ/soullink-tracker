@@ -59,7 +59,7 @@ export function LevelCaps({
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   return (
-    <div className="poke-card poke-glass p-5">
+    <div className="poke-card poke-glass p-5 fade-in-up">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
