@@ -33,7 +33,7 @@ export function PlayerBoard({
   );
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5">
+    <div className="poke-slot">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="font-semibold text-lg">{player.name}</div>
 
