@@ -29,7 +29,6 @@ export function LevelCaps({
     const next = !cap.cleared;
     setSavingId(cap.id);
 
-    // Optimistic update
     setCaps((prev) =>
       prev.map((c) => (c.id === cap.id ? { ...c, cleared: next } : c))
     );
@@ -46,7 +45,6 @@ export function LevelCaps({
         throw new Error(text || "Toggle fehlgeschlagen");
       }
     } catch (e) {
-      // Rollback
       setCaps((prev) =>
         prev.map((c) => (c.id === cap.id ? { ...c, cleared: cap.cleared } : c))
       );
@@ -109,7 +107,6 @@ export function LevelCaps({
                 cleared ? "poke-badge-complete" : "",
               ].join(" ")}
             >
-              {/* top accent line */}
               <div
                 className="absolute inset-x-0 top-0 h-[2px]"
                 style={{
@@ -142,8 +139,24 @@ export function LevelCaps({
                       {c.label}
                     </div>
 
-                    <div className="mt-2 text-3xl font-bold tracking-tight text-zinc-100">
-                      {c.cap_p1 ?? "-"} / {c.cap_p2 ?? "-"}
+                    <div className="mt-3">
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+                        Level Cap
+                      </div>
+
+                      <div className="mt-1 flex items-center gap-2 text-zinc-100">
+                        <span className="rounded-lg border border-[rgba(212,175,55,0.28)] bg-black/20 px-3 py-1 text-xl font-semibold leading-none">
+                          {c.cap_p1 ?? "-"}
+                        </span>
+
+                        <span className="text-zinc-500 text-base font-medium">
+                          /
+                        </span>
+
+                        <span className="rounded-lg border border-[rgba(212,175,55,0.28)] bg-black/20 px-3 py-1 text-xl font-semibold leading-none">
+                          {c.cap_p2 ?? "-"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -167,13 +180,13 @@ export function LevelCaps({
                     !isAdmin
                       ? "Als Admin freischalten"
                       : busy
-                      ? "Speichert..."
-                      : cleared
-                      ? "Abgehakt"
-                      : "Abhaken"
+                        ? "Speichert..."
+                        : cleared
+                          ? "Abgehakt"
+                          : "Abhaken"
                   }
                 >
-                  {busy ? "…" : cleared ? "Abgehakt" : "Abhaken"}
+                  {busy ? "..." : cleared ? "Abgehakt" : "Abhaken"}
                 </button>
               </div>
 
