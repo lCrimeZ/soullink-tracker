@@ -303,121 +303,37 @@ body {
   }
 }
 
-/* ---------- Ho-Oh Aura ---------- */
-
-@keyframes hoohAuraPulse {
-  0% {
-    opacity: 0.32;
-    transform: scale(0.98);
-    filter: blur(42px);
-  }
-  50% {
-    opacity: 0.52;
-    transform: scale(1.03);
-    filter: blur(54px);
-  }
-  100% {
-    opacity: 0.32;
-    transform: scale(0.98);
-    filter: blur(42px);
-  }
-}
-
-@keyframes hoohAuraDrift {
-  0% {
-    transform: translate3d(-1.5%, 0, 0);
-  }
-  50% {
-    transform: translate3d(1.5%, -1%, 0);
-  }
-  100% {
-    transform: translate3d(-1.5%, 0, 0);
-  }
-}
-
-.hooh-aura {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.hooh-aura::before,
-.hooh-aura::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  transform: translate(-50%, -50%);
-  border-radius: 9999px;
-  pointer-events: none;
-  mix-blend-mode: screen;
-}
-
-.hooh-aura::before {
-  width: min(72vw, 980px);
-  height: min(42vw, 560px);
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 225, 120, 0.26) 0%,
-      rgba(255, 190, 70, 0.18) 24%,
-      rgba(255, 120, 20, 0.10) 46%,
-      rgba(255, 80, 0, 0.00) 72%
-    );
-  animation:
-    hoohAuraPulse 6s ease-in-out infinite,
-    hoohAuraDrift 12s ease-in-out infinite;
-}
-
-.hooh-aura::after {
-  width: min(54vw, 760px);
-  height: min(28vw, 380px);
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 245, 180, 0.18) 0%,
-      rgba(255, 215, 90, 0.14) 26%,
-      rgba(255, 160, 40, 0.06) 52%,
-      rgba(255, 120, 0, 0.00) 74%
-    );
-  animation:
-    hoohAuraPulse 4.8s ease-in-out infinite reverse,
-    hoohAuraDrift 10s ease-in-out infinite reverse;
-}
-
-/* optional: content gets a tiny bit more separation */
-.content-stage {
-  position: relative;
-  z-index: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hooh-aura::before,
-  .hooh-aura::after {
-    animation: none !important;
-  }
-}
-
-/* Ho-Oh Flug */
+/* ----------------------------- */
+/* Ho-Oh Legendary Fly Animation */
+/* ----------------------------- */
 
 @keyframes hoohFly {
   0% {
-    transform: translate(-20vw, 12vh) scale(0.6) rotate(-6deg);
+    transform: translate(-22vw, 14vh) scale(0.58) rotate(-6deg);
     opacity: 0;
   }
 
-  10% {
-    opacity: 1;
+  8% {
+    opacity: 0.85;
   }
 
   50% {
-    transform: translate(45vw, 5vh) scale(0.9) rotate(3deg);
+    transform: translate(46vw, 7vh) scale(0.9) rotate(2deg);
+    opacity: 0.95;
   }
 
   100% {
-    transform: translate(120vw, 14vh) scale(0.7) rotate(8deg);
+    transform: translate(118vw, 13vh) scale(0.72) rotate(8deg);
     opacity: 0;
+  }
+}
+
+@keyframes hoohFloat {
+  0%, 100% {
+    margin-top: 0;
+  }
+  50% {
+    margin-top: -5px;
   }
 }
 
@@ -431,11 +347,141 @@ body {
 
 .hooh-bird {
   position: absolute;
-  width: 220px;
+  width: 240px;
   left: 0;
   top: 0;
-  animation: hoohFly 22s ease-in-out infinite;
+  opacity: 0;
+  animation:
+    hoohFly 30s ease-in-out infinite,
+    hoohFloat 3.8s ease-in-out infinite;
   filter:
-    drop-shadow(0 10px 20px rgba(0,0,0,0.5))
-    drop-shadow(0 0 30px rgba(255,180,70,0.35));
+    drop-shadow(0 10px 24px rgba(0,0,0,0.5))
+    drop-shadow(0 0 28px rgba(255,180,70,0.35));
+}
+
+/* ----------------------------- */
+/* Ho-Oh Trail Effects           */
+/* ----------------------------- */
+
+@keyframes hoohSparkTrail {
+  0% {
+    transform: translate(-18vw, 16vh) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate(42vw, 10vh) scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate(112vw, 16vh) scale(0.85);
+    opacity: 0;
+  }
+}
+
+@keyframes hoohTrailPulse {
+  0%, 100% {
+    filter: blur(10px);
+  }
+  50% {
+    filter: blur(16px);
+  }
+}
+
+.hooh-trail {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  overflow: hidden;
+}
+
+.hooh-trail::before,
+.hooh-trail::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 9999px;
+  mix-blend-mode: screen;
+}
+
+.hooh-trail::before {
+  width: 240px;
+  height: 90px;
+  background:
+    radial-gradient(circle at 18% 50%, rgba(255,230,140,0.22), transparent 36%),
+    radial-gradient(circle at 38% 50%, rgba(255,170,70,0.18), transparent 34%),
+    radial-gradient(circle at 62% 50%, rgba(255,110,20,0.16), transparent 32%),
+    radial-gradient(circle at 84% 50%, rgba(255,70,0,0.12), transparent 28%);
+  animation:
+    hoohSparkTrail 30s ease-in-out infinite,
+    hoohTrailPulse 4s ease-in-out infinite;
+  opacity: 0;
+}
+
+.hooh-trail::after {
+  width: 340px;
+  height: 120px;
+  background:
+    radial-gradient(circle at 22% 50%, rgba(255,210,110,0.10), transparent 34%),
+    radial-gradient(circle at 50% 50%, rgba(255,130,40,0.09), transparent 36%),
+    radial-gradient(circle at 78% 50%, rgba(255,80,0,0.08), transparent 34%);
+  animation:
+    hoohSparkTrail 30s ease-in-out infinite reverse,
+    hoohTrailPulse 5s ease-in-out infinite;
+  opacity: 0;
+}
+
+/* ----------------------------- */
+/* Ho-Oh Sun Flash              */
+/* ----------------------------- */
+
+@keyframes hoohSunFlash {
+  0%, 38%, 62%, 100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  48% {
+    opacity: 0.12;
+    transform: scale(1.02);
+  }
+  52% {
+    opacity: 0.22;
+    transform: scale(1.08);
+  }
+  56% {
+    opacity: 0.08;
+    transform: scale(1.01);
+  }
+}
+
+.hooh-sun-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+  overflow: hidden;
+}
+
+.hooh-sun-flash::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  width: min(34vw, 420px);
+  height: min(34vw, 420px);
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at center,
+      rgba(255,245,180,0.22) 0%,
+      rgba(255,220,110,0.12) 22%,
+      rgba(255,170,70,0.06) 42%,
+      rgba(255,120,20,0.00) 70%);
+  animation: hoohSunFlash 30s ease-in-out infinite;
+  mix-blend-mode: screen;
+  filter: blur(8px);
 }
