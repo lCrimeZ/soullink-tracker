@@ -21,9 +21,9 @@ export default function RootLayout({
             className="
               absolute inset-0
               bg-center bg-no-repeat
-              g-[length:95vw_80vh]
-              lg:bg-[length:92vw_85vh]
-              2xl:bg-[length:90vw_90vh]
+              bg-[length:min(1400px,95vw)_80vh]
+              lg:bg-[length:min(1500px,92vw)_85vh]
+              2xl:bg-[length:min(1650px,90vw)_90vh]
             "
             style={{
               backgroundImage: "url('/backgrounds/pokemon-landscape.jpg')",
