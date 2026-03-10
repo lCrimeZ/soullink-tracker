@@ -2,6 +2,135 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: dark; }
+:root {
+  color-scheme: dark;
 
-body { @apply bg-zinc-950 text-zinc-100; }
+  --poke-gold: #d4af37;
+  --poke-gold-dark: #8c6a1b;
+  --poke-red: #b91c1c;
+  --poke-red-dark: #7f1d1d;
+}
+
+body {
+  @apply bg-zinc-950 text-zinc-100;
+}
+
+/* ---------- Premium Card ---------- */
+
+.poke-card {
+  @apply rounded-xl border p-4;
+  border-color: var(--poke-gold);
+
+  background: linear-gradient(
+    180deg,
+    rgba(40,40,40,0.85),
+    rgba(15,15,15,0.95)
+  );
+
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.6) inset,
+    0 6px 20px rgba(0,0,0,0.6),
+    0 0 10px rgba(212,175,55,0.15);
+}
+
+/* ---------- Header Card ---------- */
+
+.poke-header {
+  @apply rounded-xl border p-6 flex items-center justify-between flex-wrap gap-4;
+  border-color: var(--poke-gold);
+
+  background: linear-gradient(
+    90deg,
+    rgba(127,0,0,0.5),
+    rgba(20,20,20,0.9)
+  );
+}
+
+/* ---------- Buttons ---------- */
+
+.poke-btn {
+  @apply px-3 py-2 rounded-lg text-sm font-semibold transition;
+
+  background: linear-gradient(
+    180deg,
+    #b91c1c,
+    #7f1d1d
+  );
+
+  border: 1px solid var(--poke-gold);
+}
+
+.poke-btn:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.6),
+    0 0 8px rgba(212,175,55,0.4);
+}
+
+/* ---------- Team Slot ---------- */
+
+.poke-slot {
+  @apply rounded-xl border p-3 text-center;
+
+  border-color: rgba(212,175,55,0.6);
+
+  background: linear-gradient(
+    180deg,
+    rgba(30,30,30,0.9),
+    rgba(10,10,10,0.95)
+  );
+
+  transition: all 0.15s ease;
+}
+
+.poke-slot:hover {
+  transform: scale(1.03);
+
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.6),
+    0 0 10px rgba(212,175,55,0.3);
+}
+
+/* ---------- Arena Cards ---------- */
+
+.poke-arena {
+  @apply rounded-xl border p-4;
+
+  border-color: rgba(212,175,55,0.7);
+
+  background: linear-gradient(
+    180deg,
+    rgba(35,35,35,0.95),
+    rgba(12,12,12,0.95)
+  );
+
+  transition: all 0.2s ease;
+}
+
+.poke-arena:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.7),
+    0 0 10px rgba(212,175,55,0.25);
+}
+
+/* ---------- Sprite Glow ---------- */
+
+.poke-sprite {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.7));
+}
+
+/* ---------- Badge Glow ---------- */
+
+.poke-badge-complete {
+  box-shadow:
+    0 0 10px rgba(212,175,55,0.6);
+}
+
+/* ---------- Glass Overlay ---------- */
+
+.poke-glass {
+  backdrop-filter: blur(6px);
+}
