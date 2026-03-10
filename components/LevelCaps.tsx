@@ -1,205 +1,227 @@
-// components/LevelCaps.tsx
 "use client";
 
-import { useMemo, useState } from "react";
-import type { Cap } from "@/lib/types";
+import { useState } from "react";
+
+type Cap = {
+  id: string;
+  label: string;
+  cap_p1?: number | null;
+  cap_p2?: number | null;
+  badge_name?: string | null;
+  badge_sprite?: string | null;
+  leader_sprite?: string | null;
+  cleared?: boolean | null;
+};
 
 export function LevelCaps({
-  caps,
-  isAdmin = false,
+  caps: initialCaps,
+  isAdmin,
 }: {
   caps: Cap[];
   isAdmin?: boolean;
 }) {
-  const [items, setItems] = useState<Cap[]>(caps);
+  const [caps, setCaps] = useState(initialCaps);
   const [savingId, setSavingId] = useState<string | null>(null);
 
-  const sorted = useMemo(() => {
-    // sort nach "sort" (Fallback 0)
-    return [...items].sort((a: any, b: any) => (a.sort ?? 0) - (b.sort ?? 0));
-  }, [items]);
-
-  const done = useMemo(() => {
-    return sorted.filter((c: any) => Boolean(c.cleared)).length;
-  }, [sorted]);
-
-  const total = sorted.length;
-  const pct = total ? Math.round((done / total) * 100) : 0;
-
   async function toggleCap(cap: Cap) {
-    if (!isAdmin) return;
-    if (savingId) return;
+    if (!isAdmin || savingId) return;
 
-    const next = !(cap as any).cleared;
-    setSavingId((cap as any).id);
+    const next = !cap.cleared;
+    setSavingId(cap.id);
 
-    // Optimistic UI
-    setItems((prev) =>
-      prev.map((c: any) => (c.id === (cap as any).id ? { ...c, cleared: next } : c))
+    // Optimistic update
+    setCaps((prev) =>
+      prev.map((c) => (c.id === cap.id ? { ...c, cleared: next } : c))
     );
 
     try {
       const res = await fetch("/api/cap/toggle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cap_id: (cap as any).id, cleared: next }),
+        body: JSON.stringify({ capId: cap.id, cleared: next }),
       });
 
       if (!res.ok) {
-        const msg = await res.text().catch(() => "");
-        throw new Error(msg || "Toggle fehlgeschlagen");
+        const text = await res.text().catch(() => "");
+        throw new Error(text || "Toggle fehlgeschlagen");
       }
     } catch (e) {
-      // rollback
-      setItems((prev) =>
-        prev.map((c: any) =>
-          c.id === (cap as any).id ? { ...c, cleared: !next } : c
-        )
+      // Rollback
+      setCaps((prev) =>
+        prev.map((c) => (c.id === cap.id ? { ...c, cleared: cap.cleared } : c))
       );
-      alert("❌ Fehler beim Speichern");
+      alert("Fehler beim Speichern");
     } finally {
       setSavingId(null);
     }
   }
 
-  return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-5">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="font-semibold text-lg">Level-Limits</div>
+  const done = caps.filter((c) => c.cleared).length;
+  const total = caps.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
 
-          <div className="mt-2 flex items-center gap-3 flex-wrap">
-            <span className="text-sm text-zinc-300">
+  return (
+    <div className="poke-card poke-glass p-5">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
+            Level-Limits
+          </h2>
+
+          <div className="mt-2 flex items-center gap-3 flex-wrap text-sm">
+            <span className="text-zinc-300">
               Fortschritt:{" "}
               <span className="font-semibold text-zinc-100">
-                {done} / {total}
-              </span>{" "}
-              erledigt{" "}
-              <span className="text-zinc-400">({pct}%)</span>
+                {done} / {total} erledigt ({pct}%)
+              </span>
             </span>
 
-            <div className="h-2 w-56 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden">
+            <div className="w-44 h-2 rounded-full overflow-hidden border border-[rgba(212,175,55,0.35)] bg-zinc-900/80">
               <div
-                className="h-full bg-emerald-500/70"
-                style={{ width: `${pct}%` }}
+                className="h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${pct}%`,
+                  background:
+                    "linear-gradient(90deg, rgba(185,28,28,0.95), rgba(212,175,55,0.95))",
+                }}
               />
             </div>
           </div>
         </div>
 
-        <div className="text-xs text-zinc-400">
+        <div className="text-sm text-zinc-400">
           {isAdmin ? "Admin: Abhaken aktiv" : "Read-only"}
         </div>
       </div>
 
       {/* Grid */}
-      <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {sorted.map((c: any) => {
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        {caps.map((c) => {
           const cleared = Boolean(c.cleared);
           const busy = savingId === c.id;
-
-          const hasBadge = Boolean(c.badge_sprite || c.badge_name);
 
           return (
             <div
               key={c.id}
               className={[
-                "rounded-xl border p-4 transition",
-                cleared
-                  ? "border-emerald-500/30 bg-emerald-500/10"
-                  : "border-zinc-800 bg-zinc-900/60",
+                "poke-arena relative overflow-hidden",
+                cleared ? "poke-badge-complete" : "",
               ].join(" ")}
             >
+              {/* top accent line */}
+              <div
+                className="absolute inset-x-0 top-0 h-[2px]"
+                style={{
+                  background: cleared
+                    ? "linear-gradient(90deg, rgba(212,175,55,0.95), rgba(185,28,28,0.9), rgba(212,175,55,0.95))"
+                    : "linear-gradient(90deg, rgba(212,175,55,0.5), rgba(212,175,55,0.12))",
+                }}
+              />
+
+              {/* upper section */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex gap-3 min-w-0">
-                  {/* Leader Sprite */}
-                  <div className="h-10 w-10 rounded-lg bg-zinc-900 border border-zinc-800 overflow-hidden flex items-center justify-center shrink-0">
+                  {/* Leader sprite */}
+                  <div className="h-12 w-12 rounded-xl border border-[rgba(212,175,55,0.45)] bg-zinc-900/80 flex items-center justify-center overflow-hidden shrink-0">
                     {c.leader_sprite ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={c.leader_sprite}
                         alt={c.label}
-                        className="h-10 w-10 object-contain"
+                        className="h-10 w-10 object-contain poke-sprite"
                         loading="lazy"
                       />
                     ) : (
-                      <span className="text-xs text-zinc-500">—</span>
+                      <span className="text-xs text-zinc-500">?</span>
                     )}
                   </div>
 
-                  {/* Label + Caps */}
+                  {/* text */}
                   <div className="min-w-0">
-                    <div className="text-sm text-zinc-200 leading-snug break-words">
+                    <div className="text-sm text-zinc-100 font-semibold leading-snug break-words">
                       {c.label}
                     </div>
 
-                    <div className="mt-2 text-2xl font-semibold">
-                      {c.cap_p1} / {c.cap_p2}
+                    <div className="mt-2 text-3xl font-bold tracking-tight text-zinc-100">
+                      {c.cap_p1 ?? "-"} / {c.cap_p2 ?? "-"}
                     </div>
                   </div>
                 </div>
 
-                {/* Toggle */}
+                {/* button */}
                 <button
                   type="button"
                   disabled={!isAdmin || busy}
                   onClick={() => toggleCap(c)}
                   className={[
-                    "shrink-0 rounded-xl border px-3 py-2 text-sm transition",
+                    "shrink-0 rounded-xl border px-3 py-2 text-sm font-semibold transition-all",
                     cleared
-                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
-                      : "border-zinc-700 bg-zinc-900/40 text-zinc-200",
-                    !isAdmin ? "opacity-60 cursor-not-allowed" : "",
-                    busy ? "opacity-60" : "",
+                      ? "border-[rgba(212,175,55,0.55)] bg-emerald-950/40 text-emerald-200"
+                      : "border-[rgba(212,175,55,0.4)] bg-zinc-900/80 text-zinc-200",
+                    isAdmin
+                      ? "hover:-translate-y-[1px] hover:shadow-[0_0_14px_rgba(212,175,55,0.18)]"
+                      : "opacity-70 cursor-not-allowed",
+                    busy ? "opacity-70" : "",
                   ].join(" ")}
-                  title={isAdmin ? "Als geschafft markieren" : "Nur Admin"}
+                  title={
+                    !isAdmin
+                      ? "Als Admin freischalten"
+                      : busy
+                      ? "Speichert..."
+                      : cleared
+                      ? "Abgehakt"
+                      : "Abhaken"
+                  }
                 >
                   {busy ? "…" : cleared ? "Abgehakt" : "Abhaken"}
                 </button>
               </div>
 
-              {/* Status */}
-              <div className="mt-3 text-sm">
+              {/* status */}
+              <div className="mt-4 text-sm">
                 {cleared ? (
-                  <div className="text-emerald-200/80">✓ Erledigt</div>
+                  <div className="text-emerald-300 font-medium">✓ Erledigt</div>
                 ) : (
                   <div className="text-zinc-400">Noch offen</div>
                 )}
               </div>
 
-              {/* ✅ Badge Block (NEU) */}
-              {hasBadge && (
-                <div className="mt-3 flex items-center gap-2">
-                  {c.badge_sprite ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={c.badge_sprite}
-                      alt={c.badge_name ?? "Badge"}
-                      className={[
-                        "h-6 w-6 object-contain",
-                        cleared
-                          ? "opacity-100 drop-shadow-[0_0_8px_rgba(34,197,94,0.35)]"
-                          : "opacity-80",
-                      ].join(" ")}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div
-                      className={[
-                        "h-6 w-6 rounded-full border",
-                        cleared
-                          ? "border-emerald-500/40 bg-emerald-500/10"
-                          : "border-zinc-700 bg-zinc-900/40",
-                      ].join(" ")}
-                    />
-                  )}
+              {/* badge block */}
+              <div className="mt-5 flex items-center gap-3 rounded-xl border border-[rgba(212,175,55,0.22)] bg-black/20 px-3 py-3">
+                {c.badge_sprite ? (
+                  <img
+                    src={c.badge_sprite}
+                    alt={c.badge_name ?? "Badge"}
+                    className={[
+                      "h-10 w-10 object-contain transition-all duration-200",
+                      cleared
+                        ? "opacity-100 drop-shadow-[0_0_10px_rgba(212,175,55,0.45)]"
+                        : "opacity-80",
+                    ].join(" ")}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div
+                    className={[
+                      "h-10 w-10 rounded-full border flex items-center justify-center text-xs",
+                      cleared
+                        ? "border-[rgba(212,175,55,0.55)] bg-emerald-950/30"
+                        : "border-zinc-700 bg-zinc-900/60",
+                    ].join(" ")}
+                  >
+                    ?
+                  </div>
+                )}
 
-                  <div className="text-sm text-zinc-300">
+                <div className="min-w-0">
+                  <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                    Badge
+                  </div>
+                  <div className="text-sm font-medium text-zinc-200 truncate">
                     {c.badge_name ?? "Badge"}
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           );
         })}
