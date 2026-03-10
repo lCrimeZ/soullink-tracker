@@ -15,7 +15,7 @@ export default function RootLayout({
     <html lang="de">
       <body className="min-h-screen text-zinc-100 bg-[#120b08]">
         {/* Background */}
-        <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="fixed inset-0 -z-0 overflow-hidden">
           {/* Main framed artwork */}
           <div
             className="
