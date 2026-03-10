@@ -62,7 +62,7 @@ export default async function RunPage({ params }: { params: { slug: string } }) 
 
             <div className="flex gap-2 text-sm">
 
-              <span className="px-3 py-2 rounded-xl bg-zinc-950/40 border border-zinc-800">
+              <span className="px-3 py-2 rounded-xl poke-card">
                 Level Cap (MVP):{" "}
                 <span className="font-semibold text-zinc-100">
                   {currentCap?.cap_p1 ?? "-"} / {currentCap?.cap_p2 ?? "-"}
