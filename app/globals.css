@@ -2,14 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------- Root Theme ---------- */
+
 :root {
   color-scheme: dark;
 
   --poke-gold: #d4af37;
-  --poke-gold-dark: #8c6a1b;
+  --poke-gold-soft: #c9a52b;
+
   --poke-red: #b91c1c;
-  --poke-red-dark: #7f1d1d;
+
+  --poke-bg: #0f0f0f;
+  --poke-dark: #111111;
+
+  --poke-glow: rgba(212,175,55,0.25);
+  --poke-glow-soft: rgba(212,175,55,0.12);
 }
+
+/* ---------- Base ---------- */
 
 body {
   @apply bg-zinc-950 text-zinc-100;
@@ -19,67 +29,86 @@ body {
 
 .poke-card {
   @apply rounded-xl border p-4;
+
   border-color: var(--poke-gold);
 
-  background: linear-gradient(
-    180deg,
-    rgba(40,40,40,0.85),
-    rgba(15,15,15,0.95)
-  );
+  background:
+    linear-gradient(
+      180deg,
+      rgba(40,40,40,0.92),
+      rgba(15,15,15,0.96)
+    );
 
   box-shadow:
-    0 0 0 1px rgba(0,0,0,0.6) inset,
     0 6px 20px rgba(0,0,0,0.6),
-    0 0 10px rgba(212,175,55,0.15);
+    0 0 0 1px rgba(212,175,55,0.12),
+    0 0 30px var(--poke-glow-soft);
+
+  backdrop-filter: blur(6px);
 }
 
 /* ---------- Header Card ---------- */
 
 .poke-header {
   @apply rounded-xl border p-6 flex items-center justify-between flex-wrap gap-4;
+
   border-color: var(--poke-gold);
 
-  background: linear-gradient(
-    90deg,
-    rgba(127,0,0,0.5),
-    rgba(20,20,20,0.9)
-  );
+  background:
+    linear-gradient(
+      90deg,
+      rgba(180,40,0,0.95),
+      rgba(120,0,0,0.85)
+    );
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.7),
+    0 0 30px rgba(255,120,0,0.2),
+    inset 0 0 20px rgba(255,200,0,0.08);
 }
 
 /* ---------- Buttons ---------- */
 
 .poke-btn {
-  @apply px-3 py-2 rounded-lg text-sm font-semibold transition;
+  @apply px-3 py-2 rounded-lg text-sm font-semibold transition-all;
 
-  background: linear-gradient(
-    180deg,
-    #b91c1c,
-    #7f1d1d
-  );
+  background:
+    linear-gradient(
+      180deg,
+      #facc15,
+      #ca8a04
+    );
+
+  color: #1a1a1a;
 
   border: 1px solid var(--poke-gold);
+
+  box-shadow:
+    0 4px 10px rgba(0,0,0,0.6),
+    0 0 10px rgba(212,175,55,0.25);
 }
 
 .poke-btn:hover {
   transform: translateY(-1px);
 
   box-shadow:
-    0 4px 12px rgba(0,0,0,0.6),
-    0 0 8px rgba(212,175,55,0.4);
+    0 8px 18px rgba(0,0,0,0.7),
+    0 0 18px rgba(212,175,55,0.4);
 }
 
-/* ---------- Team Slot ---------- */
+/* ---------- Team Slots ---------- */
 
 .poke-slot {
   @apply rounded-xl border p-3 text-center;
 
   border-color: rgba(212,175,55,0.6);
 
-  background: linear-gradient(
-    180deg,
-    rgba(30,30,30,0.9),
-    rgba(10,10,10,0.95)
-  );
+  background:
+    linear-gradient(
+      180deg,
+      rgba(30,30,30,0.95),
+      rgba(10,10,10,0.95)
+    );
 
   transition: all 0.15s ease;
 }
@@ -89,7 +118,7 @@ body {
 
   box-shadow:
     0 6px 20px rgba(0,0,0,0.6),
-    0 0 10px rgba(212,175,55,0.3);
+    0 0 14px rgba(212,175,55,0.3);
 }
 
 /* ---------- Arena Cards ---------- */
@@ -99,38 +128,52 @@ body {
 
   border-color: rgba(212,175,55,0.7);
 
-  background: linear-gradient(
-    180deg,
-    rgba(35,35,35,0.95),
-    rgba(12,12,12,0.95)
-  );
+  background:
+    linear-gradient(
+      180deg,
+      rgba(35,35,35,0.95),
+      rgba(12,12,12,0.95)
+    );
 
   transition: all 0.2s ease;
 }
 
 .poke-arena:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 
   box-shadow:
-    0 8px 24px rgba(0,0,0,0.7),
-    0 0 10px rgba(212,175,55,0.25);
+    0 10px 28px rgba(0,0,0,0.7),
+    0 0 20px rgba(212,175,55,0.25);
 }
 
 /* ---------- Sprite Glow ---------- */
 
 .poke-sprite {
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.7));
+  filter:
+    drop-shadow(0 4px 10px rgba(0,0,0,0.7))
+    drop-shadow(0 0 8px rgba(255,220,120,0.15));
 }
 
 /* ---------- Badge Glow ---------- */
 
 .poke-badge-complete {
   box-shadow:
-    0 0 10px rgba(212,175,55,0.6);
+    0 0 16px rgba(212,175,55,0.6),
+    0 0 40px rgba(212,175,55,0.25);
 }
 
 /* ---------- Glass Overlay ---------- */
 
 .poke-glass {
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
+  background: rgba(15,15,15,0.5);
+}
+
+/* ---------- Smooth UI Animations ---------- */
+
+* {
+  transition:
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
