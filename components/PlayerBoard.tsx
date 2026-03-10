@@ -3,13 +3,16 @@
 import { Encounter, Player } from "@/lib/types";
 import { TypePill } from "./TypePill";
 import { TYPE_META, normalizeType } from "@/lib/pokemon-types";
-import { displayPokemon } from "@/lib/pokedex";
+import { displayPokemonDe } from "@/lib/pokedex";
 
 function cardBg(status: Encounter["status"]) {
-  if (status === "dead")
+  if (status === "dead") {
     return "bg-red-950/40 border-red-900/60";
-  if (status === "lost")
+  }
+
+  if (status === "lost") {
     return "bg-zinc-950/40 border-zinc-800";
+  }
 
   return "bg-emerald-950/20 border-zinc-800";
 }
@@ -38,7 +41,6 @@ export function PlayerBoard({
 
   return (
     <div className="poke-card">
-      {/* Header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="font-semibold text-lg">{player.name}</div>
 
@@ -53,7 +55,6 @@ export function PlayerBoard({
         </div>
       </div>
 
-      {/* Team Grid */}
       <div className="mt-4 grid grid-cols-3 gap-3">
         {slots.map((e, i) => {
           const clickable = !!e && !!onSelectEncounter;
@@ -71,7 +72,6 @@ export function PlayerBoard({
             >
               {e ? (
                 <div className="flex gap-3 items-center">
-                  {/* Sprite */}
                   <div
                     className={[
                       "h-12 w-12 rounded-lg bg-zinc-900/60 border border-zinc-800",
@@ -90,10 +90,9 @@ export function PlayerBoard({
                     )}
                   </div>
 
-                  {/* Infos */}
                   <div className="min-w-0">
                     <div className="font-semibold truncate">
-                      {displayPokemon(e.pokemon_name)}
+                      {displayPokemonDe(e.pokemon_name)}
                     </div>
 
                     <div className="text-xs text-zinc-400 truncate">
