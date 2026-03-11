@@ -94,6 +94,69 @@ function SelectField({
   );
 }
 
+function buildRecommendationText({
+  attackType,
+  defenders,
+  attackMultiplier,
+  defenseSummary,
+}: {
+  attackType: Gen4Type;
+  defenders: Gen4Type[];
+  attackMultiplier: number;
+  defenseSummary: ReturnType<typeof getDefenseSummary>;
+}) {
+  const atkName = TYPE_LABEL_DE[attackType];
+  const targetNames = defenders.map((t) => TYPE_LABEL_DE[t]).join(" / ");
+
+  const bestWeak = defenseSummary.weak[0];
+  const bestResist = defenseSummary.resist[0];
+  const bestImmune = defenseSummary.immune[0];
+
+  let offenseText = "";
+  if (!targetNames) {
+    offenseText = "Wähle ein Ziel, um eine Angriffsempfehlung zu erhalten.";
+  } else if (attackMultiplier === 0) {
+    offenseText = `${atkName} solltest du gegen ${targetNames} vermeiden, weil es gar keinen Schaden macht.`;
+  } else if (attackMultiplier >= 4) {
+    offenseText = `${atkName} ist gegen ${targetNames} eine extrem starke Wahl.`;
+  } else if (attackMultiplier > 1) {
+    offenseText = `${atkName} ist gegen ${targetNames} eine gute offensive Wahl.`;
+  } else if (attackMultiplier < 1) {
+    offenseText = `${atkName} ist gegen ${targetNames} eher keine gute Wahl.`;
+  } else {
+    offenseText = `${atkName} trifft ${targetNames} neutral und ist damit okay, aber nicht optimal.`;
+  }
+
+  let defenseText = "";
+  if (bestWeak?.mult === 4) {
+    defenseText = `Pass besonders auf ${TYPE_LABEL_DE[bestWeak.type]} auf — hier besteht sogar eine 4×-Schwäche.`;
+  } else if (bestWeak?.mult === 2) {
+    defenseText = `Sei vorsichtig gegen ${TYPE_LABEL_DE[bestWeak.type]}, weil dein Pokémon davon extra Schaden nimmt.`;
+  } else if (bestImmune) {
+    defenseText = `Gut zu wissen: Gegen ${TYPE_LABEL_DE[bestImmune.type]} bist du sogar komplett immun.`;
+  } else if (bestResist) {
+    defenseText = `${TYPE_LABEL_DE[bestResist.type]} ist defensiv meist angenehm, weil dein Pokémon diesen Typ gut aushält.`;
+  } else {
+    defenseText = `Dein aktuelles Typing ist defensiv ziemlich ausgeglichen.`;
+  }
+
+  return { offenseText, defenseText };
+}
+
+function getBestAttackTypes(defenders: Gen4Type[]) {
+  const ranked = GEN4_TYPES.map((type) => ({
+    type,
+    mult: getTypeMultiplier(type, defenders),
+  })).sort((a, b) => b.mult - a.mult);
+
+  const best = ranked.filter((r) => r.mult > 1);
+  const neutral = ranked.filter((r) => r.mult === 1);
+  const bad = ranked.filter((r) => r.mult < 1 && r.mult > 0);
+  const immune = ranked.filter((r) => r.mult === 0);
+
+  return { best, neutral, bad, immune };
+}
+
 async function fetchPokemonTypes(nameEn: string): Promise<{
   sprite: string | null;
   type1: Gen4Type | null;
@@ -264,6 +327,19 @@ export function TypeGuideLauncher() {
     return `${own} hat ein ausgeglichenes Defensivprofil.`;
   }, [ownTypes, defenseSummary]);
 
+  const recommendation = useMemo(() => {
+    return buildRecommendationText({
+      attackType,
+      defenders,
+      attackMultiplier,
+      defenseSummary,
+    });
+  }, [attackType, defenders, attackMultiplier, defenseSummary]);
+
+  const bestAttackTypes = useMemo(() => {
+    return getBestAttackTypes(defenders);
+  }, [defenders]);
+
   const modal = open ? (
     <div className="fixed inset-0 z-[999] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-3xl border border-[rgba(212,175,55,0.42)] bg-zinc-950/95 shadow-[0_0_40px_rgba(0,0,0,0.6)] fade-in-up">
@@ -360,6 +436,83 @@ export function TypeGuideLauncher() {
                 {defType2 ? <TypePill t={defType2} /> : null}
               </div>
             ) : null}
+          </div>
+
+          {/* Empfehlung */}
+          <div className="rounded-3xl border border-[rgba(212,175,55,0.20)] bg-black/20 p-5">
+            <SectionTitle>Empfehlung für Anfänger</SectionTitle>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <div className="rounded-2xl border border-emerald-700/30 bg-emerald-950/10 p-4">
+                <div className="text-sm font-semibold text-emerald-300">
+                  Offensiv empfohlen
+                </div>
+                <div className="mt-2 text-sm leading-6 text-zinc-300">
+                  {recommendation.offenseText}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-red-700/30 bg-red-950/10 p-4">
+                <div className="text-sm font-semibold text-red-300">
+                  Defensiv beachten
+                </div>
+                <div className="mt-2 text-sm leading-6 text-zinc-300">
+                  {recommendation.defenseText}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Beste Angriffstypen */}
+          <div className="rounded-3xl border border-[rgba(212,175,55,0.20)] bg-black/20 p-5">
+            <SectionTitle>Beste Angriffstypen gegen das Ziel</SectionTitle>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <TypeGroup
+                title="Am besten geeignet"
+                colorClass="text-emerald-300"
+                items={bestAttackTypes.best}
+              />
+
+              <TypeGroup
+                title="Neutral brauchbar"
+                colorClass="text-zinc-300"
+                items={bestAttackTypes.neutral.slice(0, 6)}
+              />
+            </div>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <TypeGroup
+                title="Eher vermeiden"
+                colorClass="text-red-300"
+                items={bestAttackTypes.bad}
+              />
+
+              <TypeGroup
+                title="Wirkt gar nicht"
+                colorClass="text-zinc-300"
+                items={bestAttackTypes.immune}
+              />
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-[rgba(212,175,55,0.18)] bg-black/15 p-4 text-sm text-zinc-300">
+              <div className="font-medium text-zinc-200">Kurz gesagt</div>
+              <div className="mt-2 leading-6 text-zinc-400">
+                Nutze bevorzugt die Typen aus{" "}
+                <span className="font-medium text-emerald-300">
+                  „Am besten geeignet“
+                </span>
+                . Alles unter{" "}
+                <span className="font-medium text-red-300">
+                  „Eher vermeiden“
+                </span>{" "}
+                macht weniger Schaden, und{" "}
+                <span className="font-medium text-zinc-200">
+                  „Wirkt gar nicht“
+                </span>{" "}
+                solltest du komplett meiden.
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-5 xl:grid-cols-2">
