@@ -7,6 +7,7 @@ import {
 
 export type TeamAnalysisMember = {
   pokemon_name: string | null;
+  sprite_url: string | null;
   type1: string | null;
   type2: string | null;
   status: "alive" | "dead" | "lost";
