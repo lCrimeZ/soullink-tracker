@@ -2,6 +2,7 @@ import { loadRunBySlug } from "@/lib/load-run";
 import { isAdmin } from "@/lib/admin";
 import { PlayerBoard } from "@/components/PlayerBoard";
 import { LevelCaps } from "@/components/LevelCaps";
+import { CatchRateLauncher } from "@/components/CatchRateLauncher";
 import RunClient from "./run-client";
 
 export const dynamic = "force-dynamic";
@@ -41,12 +42,12 @@ export default async function RunPage({
   return (
     <div className="min-h-screen relative overflow-hidden text-zinc-100">
       {/* Background Glow */}
-      <div className="absolute -top-[220px] -left-[220px] w-[520px] h-[520px] rounded-full blur-3xl pointer-events-none bg-red-900/25" />
-      <div className="absolute -bottom-[240px] -right-[220px] w-[520px] h-[520px] rounded-full blur-3xl pointer-events-none bg-amber-500/10" />
+      <div className="absolute -top-[220px] -left-[220px] h-[520px] w-[520px] rounded-full blur-3xl pointer-events-none bg-red-900/25" />
+      <div className="absolute -bottom-[240px] -right-[220px] h-[520px] w-[520px] rounded-full blur-3xl pointer-events-none bg-amber-500/10" />
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.08),transparent_35%)]" />
 
-      <div className="relative p-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+      <div className="relative px-6 py-6">
+        <div className="mx-auto max-w-[1400px] space-y-6">
           {/* Header */}
           <div className="poke-header poke-glass fade-in-up soft-shimmer">
             <div>
@@ -54,11 +55,11 @@ export default async function RunPage({
                 {data.run.game} · Gen {data.run.gen}
               </div>
 
-              <div className="text-3xl font-bold tracking-tight mt-1">
+              <div className="mt-1 text-3xl font-bold tracking-tight">
                 {data.run.title}
               </div>
 
-              <div className="text-sm text-zinc-400 mt-2">
+              <div className="mt-2 text-sm text-zinc-400">
                 Share: /run/{data.run.slug}
               </div>
             </div>
@@ -68,12 +69,14 @@ export default async function RunPage({
                 <div className="text-xs uppercase tracking-[0.18em] text-zinc-400">
                   Current Cap
                 </div>
-                <div className="text-sm font-semibold text-zinc-100 mt-1">
+                <div className="mt-1 text-sm font-semibold text-zinc-100">
                   {currentCap
                     ? `${currentCap.label}: ${currentCap.cap_p1 ?? "-"} / ${currentCap.cap_p2 ?? "-"}`
                     : "Kein Level Cap"}
                 </div>
               </div>
+
+              <CatchRateLauncher />
 
               <div
                 className={[
@@ -89,7 +92,7 @@ export default async function RunPage({
           </div>
 
           {/* Player Boards */}
-          <div className="grid lg:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <PlayerBoard player={p1} team={team1} />
             <PlayerBoard player={p2} team={team2} />
           </div>
