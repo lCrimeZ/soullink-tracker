@@ -4,6 +4,7 @@ import { PlayerBoard } from "@/components/PlayerBoard";
 import { LevelCaps } from "@/components/LevelCaps";
 import { CatchRateLauncher } from "@/components/CatchRateLauncher";
 import { TypeGuideLauncher } from "@/components/TypeGuideLauncher";
+import { TeamAnalysisLauncher } from "@/components/TeamAnalysisLauncher";
 import RunClient from "./run-client";
 
 export const dynamic = "force-dynamic";
@@ -79,6 +80,12 @@ export default async function RunPage({
 
               <CatchRateLauncher />
               <TypeGuideLauncher />
+              <TeamAnalysisLauncher
+                players={[
+                  { name: p1.name, team: team1 },
+                  { name: p2.name, team: team2 },
+                ]}
+              />
 
               <div
                 className={[
