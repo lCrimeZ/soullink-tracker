@@ -3,6 +3,7 @@ import { isAdmin } from "@/lib/admin";
 import { PlayerBoard } from "@/components/PlayerBoard";
 import { LevelCaps } from "@/components/LevelCaps";
 import { CatchRateLauncher } from "@/components/CatchRateLauncher";
+import { TypeGuideLauncher } from "@/components/TypeGuideLauncher";
 import RunClient from "./run-client";
 
 export const dynamic = "force-dynamic";
@@ -77,6 +78,7 @@ export default async function RunPage({
               </div>
 
               <CatchRateLauncher />
+              <TypeGuideLauncher />
 
               <div
                 className={[
